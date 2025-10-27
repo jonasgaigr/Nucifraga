@@ -3,6 +3,7 @@
 #----------------------------------------------------------#
 packages <- c(
   "tidyverse",
+  "broom",
   "janitor",
   "sf", 
   "sp", 
@@ -10,7 +11,16 @@ packages <- c(
   "openxlsx",
   "fuzzyjoin", 
   "remotes",
-  "ggtext"
+  "ggtext",
+  "vegan",
+  "ggplot2",
+  "ggrepel",
+  "ggforce",
+  "MASS",
+  "DHARMa",
+  "patchwork",
+  "sjPlot",
+  "report"
 )
 
 # Standard package
@@ -24,11 +34,18 @@ for (pkg in packages) {
 #----------------------------------------------------------#
 # Load data -----
 #----------------------------------------------------------#
-raw <- openxlsx::read.xlsx("Data/Input/Oresnik_statistika.xlsx", sheet = 1, colNames = TRUE)
+raw <- openxlsx::read.xlsx(
+  "Data/Input/Oresnik_statistika.xlsx", 
+  sheet = 1, 
+  colNames = TRUE,
+  detectDates = TRUE
+  )
 
 df <- raw %>%
   rename_with(~ str_replace_all(., "\\.", "_")) %>%     # replace "." with "_"
-  rename_with(~ str_remove_all(., "[()]"))     
+  rename_with(~ str_remove_all(., "[()]")) %>%
+  # Replace Inf / -Inf with NA
+  mutate(across(everything(), ~ ifelse(is.infinite(.x), NA, .x)))
 
 
 # Write processed data ----
