@@ -1,5 +1,5 @@
-We fitted a negative-binomial model (estimated using ML) to predict Celkem_zjisteno_oresniku with Pocet_nalezu (formula: Celkem_zjisteno_oresniku ~ Pocet_nalezu). The model's explanatory power is weak (Nagelkerke's R2 = 0.06). The model's intercept, corresponding to Pocet_nalezu = 0, is at -0.40 (95% CI [-0.57, -0.23], p < .001). Within this model:
+We fitted a poisson model (estimated using ML) to predict Celkem_zjisteno_oresniku with Pocet_nalezu (formula: Celkem_zjisteno_oresniku ~ Pocet_nalezu). The model's explanatory power is weak (Nagelkerke's R2 = 0.07). The model's intercept, corresponding to Pocet_nalezu = 0, is at -0.37 (95% CI [-0.50, -0.24], p < .001). Within this model:
 
-  - The effect of Pocet nalezu is statistically significant and positive (beta = 0.11, 95% CI [0.05, 0.17], p < .001; Std. beta = 0.25, 95% CI [0.12, 0.39])
+  - The effect of Pocet nalezu is statistically significant and positive (beta = 0.09, 95% CI [0.05, 0.11], p < .001; Std. beta = 0.20, 95% CI [0.12, 0.26])
 
 Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.

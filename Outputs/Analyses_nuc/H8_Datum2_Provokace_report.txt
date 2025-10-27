@@ -1,0 +1,7 @@
+We fitted a poisson model (estimated using ML) to predict Spontanne_1 with Datum_2 and Provokovano_1 (formula: Spontanne_1 ~ Datum_2 * Provokovano_1). The model's explanatory power is weak (Nagelkerke's R2 = 0.11). The model's intercept, corresponding to Datum_2 = [?] and Provokovano_1 = 0, is at 180.39 (95% CI [-277.81, 646.48], p = 0.443). Within this model:
+
+  - The effect of Datum 2 is statistically non-significant and negative (beta = -9.00e-03, 95% CI [-0.03, 0.01], p = 0.438; Std. beta = -0.01, 95% CI [-0.03, 8.69e-03])
+  - The effect of Provokovano 1 is statistically non-significant and positive (beta = 114.11, 95% CI [-158.65, 404.07], p = 0.424; Std. beta = 105.25, 95% CI [-146.32, 372.68])
+  - The effect of Datum 2 × Provokovano 1 is statistically non-significant and negative (beta = -5.61e-03, 95% CI [-0.02, 7.84e-03], p = 0.426; Std. beta = -5.18e-03, 95% CI [-0.02, 7.23e-03])
+
+Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.

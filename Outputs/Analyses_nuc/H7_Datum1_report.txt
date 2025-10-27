@@ -1,5 +1,5 @@
-We fitted a negative-binomial model (estimated using ML) to predict Celkem_zjisteno_oresniku with Datum_1 (formula: Celkem_zjisteno_oresniku ~ Datum_1). The model's explanatory power is weak (Nagelkerke's R2 = 0.07). The model's intercept, corresponding to Datum_1 = [?], is at 341.99 (95% CI [169.30, 522.84], p < .001). Within this model:
+We fitted a poisson model (estimated using ML) to predict Spontanne_1 with Datum_1 (formula: Spontanne_1 ~ Datum_1). The model's explanatory power is weak (Nagelkerke's R2 = 0.06). The model's intercept, corresponding to Datum_1 = [?], is at 546.36 (95% CI [217.05, 882.51], p = 0.001). Within this model:
 
-  - The effect of Datum 1 is statistically significant and negative (beta = -0.02, 95% CI [-0.03, -8.41e-03], p < .001; Std. beta = -0.02, 95% CI [-0.03, -8.41e-03])
+  - The effect of Datum 1 is statistically significant and negative (beta = -0.03, 95% CI [-0.04, -0.01], p = 0.001; Std. beta = -0.03, 95% CI [-0.04, -0.01])
 
 Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.
