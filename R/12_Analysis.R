@@ -38,76 +38,105 @@ data_model <- data_model %>%
     podil_souse = ifelse(!is.na(SMRK_m2) & SMRK_m2 > 0,
                          Plocha_souse_m2 / SMRK_m2, NA_real_),
     podil_tezby = ifelse(!is.na(SMRK_m2) & SMRK_m2 > 0,
-                         Plocha_tezby_m2 / SMRK_m2, NA_real_)
+                         Plocha_tezby_m2 / SMRK_m2, NA_real_),
+    mesic_1 = as.numeric(lubridate::month(Datum_1)),
+    mesic_2 = as.numeric(lubridate::month(Datum_2))
+  )
+
+data_model_h7 <-
+  data_model %>%
+  dplyr::filter(
+    mesic_1 %in% c(2, 3, 4)
+  )
+
+data_model_h8 <-
+  data_model %>%
+  dplyr::filter(
+    mesic_2 %in% c(6, 7)
   )
 
 # === Modely pro jednotlivé hypotézy =========================================
+# --- všechny modely nyní Poisson (count data, integer response) ---
 
-# Hypotéza 1: SMRK_m2 -> Celkem_zjisteno_oresniku
-m_h1 <- MASS::glm.nb(
+m_h1 <- glm(
   Celkem_zjisteno_oresniku ~ SMRK_m2,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 2: Pocet_nalezu -> Celkem_zjisteno_oresniku
-m_h2 <- MASS::glm.nb(
+m_h2 <- glm(
   Celkem_zjisteno_oresniku ~ Pocet_nalezu,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 3: prob_1h_mean -> Celkem_zjisteno_oresniku
-m_h3 <- MASS::glm.nb(
+m_h3 <- glm(
   Celkem_zjisteno_oresniku ~ prob_1h_mean,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 4: podil_kalamity -> Celkem_zjisteno_oresniku
-m_h4 <- MASS::glm.nb(
+m_h4 <- glm(
   Celkem_zjisteno_oresniku ~ podil_kalamity,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 5: podil_souse -> Celkem_zjisteno_oresniku
-m_h5 <- MASS::glm.nb(
+m_h5 <- glm(
   Celkem_zjisteno_oresniku ~ podil_souse,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 6: podil_tezby -> Celkem_zjisteno_oresniku
-m_h6 <- MASS::glm.nb(
+m_h6 <- glm(
   Celkem_zjisteno_oresniku ~ podil_tezby,
   data = data_model,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
 
-# Hypotéza 7: Datum_1 -> Celkem_zjisteno_oresniku
-m_h7 <- MASS::glm.nb(
-  Celkem_zjisteno_oresniku ~ Datum_1,
-  data = data_model,
+m_h7 <- glm(
+  Spontanne_1 ~ Datum_1,
+  data = data_model_h7,
+  family = poisson(link = "log"),
   na.action = na.exclude
 )
+
+m_h8 <- glm(
+  Spontanne_1 ~ Datum_2 * Provokovano_1,
+  data = data_model_h8,
+  family = poisson(link = "log"),
+  na.action = na.exclude
+)
+
+# === Diagnostika overdisperze (volitelná kontrola) ==========================
+# pokud se hodnota > 1.5, uvaž přechod na NB
+check_overdisp <- function(model) {
+  ratio <- sum(residuals(model, type = "pearson")^2) / df.residual(model)
+  return(ratio)
+}
+
+dispersion_values <- sapply(list(m_h1, m_h2, m_h3, m_h4, m_h5, m_h6, m_h7, m_h8), check_overdisp)
+names(dispersion_values) <- paste0("H", 1:8)
+print(dispersion_values)
 
 # === Export výsledků ========================================================
 
-# Funkce pro export CSV, DOC a TXT
 export_model <- function(model, model_name){
   
-  # tidy CSV
   tab <- broom::tidy(model, conf.int = TRUE, conf.level = 0.95)
   utils::write.csv(tab,
                    file = file.path(out_dir, paste0(model_name, "_tidy.csv")),
                    row.names = FALSE)
   
-  # Null model pro srovnání (jen intercept)
-  m_null <- MASS::glm.nb(Celkem_zjisteno_oresniku ~ 1,
-                         data = data_model, na.action = na.exclude)
+  m_null <- glm(Celkem_zjisteno_oresniku ~ 1,
+                data = data_model, family = poisson(link = "log"), na.action = na.exclude)
   
-  # DOC srovnání
   sjPlot::tab_model(
     model, m_null,
     show.aic = TRUE,
@@ -116,19 +145,18 @@ export_model <- function(model, model_name){
     file = file.path(out_dir, paste0(model_name, "_models.doc"))
   )
   
-  # TXT report
   report_txt <- report::report(model)
   base::cat(report_txt, file = file.path(out_dir, paste0(model_name, "_report.txt")))
 }
 
-# Export všech modelů
-export_model(m_h1, "H1_SMRC")
+export_model(m_h1, "H1_SMRK")
 export_model(m_h2, "H2_NDOP")
 export_model(m_h3, "H3_Prob")
 export_model(m_h4, "H4_Kalamita")
 export_model(m_h5, "H5_Souse")
 export_model(m_h6, "H6_Tezba")
 export_model(m_h7, "H7_Datum1")
+export_model(m_h8, "H8_Datum2_Provokace")
 
 message("Analýza dokončena, výstupy uložené v: ", normalizePath(out_dir))
 
@@ -196,12 +224,15 @@ p_h5 <- pred_effect_plot(m_h5, data_model, "podil_souse", "Podíl souše")
 p_h6 <- pred_effect_plot(m_h6, data_model, "podil_tezby", "Podíl těžby")
 
 # H7
-p_h7 <- pred_effect_plot(m_h7, data_model, "Datum_1", "Datum_1")
+p_h7 <- pred_effect_plot(m_h7, data_model_h7, "Datum_1", "Datum_1")
+
+# H8
+p_h8 <- pred_effect_plot(m_h8, data_model_h8, "Datum_2", "Datum_2")
 
 # --- Skladání a ukládání ---
 ggplot2::ggsave("Outputs/Analyses_nuc/H1_H3.png", p_h1 + p_h2 + p_h3, width = 12, height = 4)
 ggplot2::ggsave("Outputs/Analyses_nuc/H4_H6.png", p_h4 + p_h5 + p_h6, width = 12, height = 4)
-ggplot2::ggsave("Outputs/Analyses_nuc/H7.png", p_h7 , width = 12, height = 4)
+ggplot2::ggsave("Outputs/Analyses_nuc/H7_H8.png", p_h7 + p_h8, width = 12, height = 4)
 
 pred_effect_plot_points <- function(model, data, predictor, predictor_label = predictor, n = 100) {
   
@@ -262,10 +293,11 @@ p_h5 <- pred_effect_plot_points(m_h5, data_model, "podil_souse", "Podíl souše"
 p_h6 <- pred_effect_plot_points(m_h6, data_model, "podil_tezby", "Podíl těžby")
 
 # H7–H8
-p_h7 <- pred_effect_plot_points(m_h7, data_model, "Datum_1", "Datum_1")
+p_h7 <- pred_effect_plot_points(m_h7, data_model_h7, "Datum_1", "Datum_1")
+p_h8 <- pred_effect_plot_points(m_h8, data_model_h8, "Datum_2", "Datum_2")
 
 # --- Skladání a ukládání ---
 ggplot2::ggsave("Outputs/Analyses_nuc/H1_H3_points.png", p_h1 + p_h2 + p_h3, width = 12, height = 4)
 ggplot2::ggsave("Outputs/Analyses_nuc/H4_H6_points.png", p_h4 + p_h5 + p_h6, width = 12, height = 4)
-ggplot2::ggsave("Outputs/Analyses_nuc/H7_points.png", p_h7, width = 12, height = 4)
+ggplot2::ggsave("Outputs/Analyses_nuc/H7_H8_points.png", p_h7 + p_h8, width = 12, height = 4)
 
