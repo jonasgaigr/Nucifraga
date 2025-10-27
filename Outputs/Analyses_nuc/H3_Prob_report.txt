@@ -1,0 +1,5 @@
+We fitted a negative-binomial model (estimated using ML) to predict Celkem_zjisteno_oresniku with prob_1h_mean (formula: Celkem_zjisteno_oresniku ~ prob_1h_mean). The model's explanatory power is moderate (Nagelkerke's R2 = 0.17). The model's intercept, corresponding to prob_1h_mean = 0, is at -0.84 (95% CI [-1.07, -0.61], p < .001). Within this model:
+
+  - The effect of prob 1h mean is statistically significant and positive (beta = 6.05, 95% CI [4.26, 7.92], p < .001; Std. beta = 0.40, 95% CI [0.28, 0.52])
+
+Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.

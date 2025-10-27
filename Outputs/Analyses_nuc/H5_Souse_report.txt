@@ -1,0 +1,5 @@
+We fitted a negative-binomial model (estimated using ML) to predict Celkem_zjisteno_oresniku with podil_souse (formula: Celkem_zjisteno_oresniku ~ podil_souse). The model's explanatory power is weak (Nagelkerke's R2 = 0.08). The model's intercept, corresponding to podil_souse = 0, is at 0.04 (95% CI [-0.16, 0.24], p = 0.696). Within this model:
+
+  - The effect of podil souse is statistically significant and negative (beta = -13.08, 95% CI [-20.67, -6.44], p < .001; Std. beta = -0.63, 95% CI [-1.00, -0.31])
+
+Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.
