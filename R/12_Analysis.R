@@ -43,6 +43,12 @@ data_model <- data_model %>%
     mesic_2 = as.numeric(lubridate::month(Datum_2))
   )
 
+data_model_h1 <-
+  data_model %>%
+  dplyr::filter(
+    podil_kalamity <= 1 & podil_souse <= 1 & podil_tezby <= 1
+  )
+
 data_model_h7 <-
   data_model %>%
   dplyr::filter(
@@ -60,7 +66,7 @@ data_model_h8 <-
 
 m_h1 <- glm(
   Celkem_zjisteno_oresniku ~ SMRK_m2,
-  data = data_model,
+  data = data_model_h1,
   family = poisson(link = "log"),
   na.action = na.exclude
 )
@@ -81,21 +87,21 @@ m_h3 <- glm(
 
 m_h4 <- glm(
   Celkem_zjisteno_oresniku ~ podil_kalamity,
-  data = data_model,
+  data = data_model_h1,
   family = poisson(link = "log"),
   na.action = na.exclude
 )
 
 m_h5 <- glm(
   Celkem_zjisteno_oresniku ~ podil_souse,
-  data = data_model,
+  data = data_model_h1,
   family = poisson(link = "log"),
   na.action = na.exclude
 )
 
 m_h6 <- glm(
   Celkem_zjisteno_oresniku ~ podil_tezby,
-  data = data_model,
+  data = data_model_h1,
   family = poisson(link = "log"),
   na.action = na.exclude
 )
@@ -206,7 +212,7 @@ library(ggplot2)
 library(patchwork)  # pro skládání grafů
 
 # H1
-p_h1 <- pred_effect_plot(m_h1, data_model, "SMRK_m2", "SMRK_m2")
+p_h1 <- pred_effect_plot(m_h1, data_model_h1, "SMRK_m2", "SMRK_m2")
 
 # H2
 p_h2 <- pred_effect_plot(m_h2, data_model, "Pocet_nalezu", "Pocet_nalezu")
@@ -215,13 +221,13 @@ p_h2 <- pred_effect_plot(m_h2, data_model, "Pocet_nalezu", "Pocet_nalezu")
 p_h3 <- pred_effect_plot(m_h3, data_model, "prob_1h_mean", "prob_1h_mean")
 
 # H4
-p_h4 <- pred_effect_plot(m_h4, data_model, "podil_kalamity", "Podíl kůrovcové kalamity")
+p_h4 <- pred_effect_plot(m_h4, data_model_h1, "podil_kalamity", "Podíl kůrovcové kalamity")
 
 # H5
-p_h5 <- pred_effect_plot(m_h5, data_model, "podil_souse", "Podíl souše")
+p_h5 <- pred_effect_plot(m_h5, data_model_h1, "podil_souse", "Podíl souše")
 
 # H6
-p_h6 <- pred_effect_plot(m_h6, data_model, "podil_tezby", "Podíl těžby")
+p_h6 <- pred_effect_plot(m_h6, data_model_h1, "podil_tezby", "Podíl těžby")
 
 # H7
 p_h7 <- pred_effect_plot(m_h7, data_model_h7, "Datum_1", "Datum_1")
