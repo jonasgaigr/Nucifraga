@@ -1,5 +1,5 @@
-We fitted a poisson model (estimated using ML) to predict Celkem_zjisteno_oresniku with podil_kalamity (formula: Celkem_zjisteno_oresniku ~ podil_kalamity). The model's explanatory power is weak (Nagelkerke's R2 = 0.12). The model's intercept, corresponding to podil_kalamity = 0, is at 0.07 (95% CI [-0.08, 0.21], p = 0.358). Within this model:
+We fitted a poisson model (estimated using ML) to predict Celkem_zjisteno_oresniku with podil_kalamity (formula: Celkem_zjisteno_oresniku ~ podil_kalamity). The model's explanatory power is weak (Nagelkerke's R2 = 0.13). The model's intercept, corresponding to podil_kalamity = 0, is at 0.11 (95% CI [-0.04, 0.26], p = 0.138). Within this model:
 
-  - The effect of podil kalamity is statistically significant and negative (beta = -1.92, 95% CI [-2.70, -1.22], p < .001; Std. beta = -0.55, 95% CI [-0.77, -0.35])
+  - The effect of podil kalamity is statistically significant and negative (beta = -2.33, 95% CI [-3.21, -1.52], p < .001; Std. beta = -0.48, 95% CI [-0.67, -0.32])
 
 Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.
