@@ -294,9 +294,9 @@ p_h2 <- pred_effect_plot_points(m_h2, data_model, "Pocet_nalezu", "Pocet_nalezu"
 p_h3 <- pred_effect_plot_points(m_h3, data_model, "prob_1h_mean", "prob_1h_mean")
 
 # H4–H6
-p_h4 <- pred_effect_plot_points(m_h4, data_model, "podil_kalamity", "Podíl kůrovcové kalamity")
-p_h5 <- pred_effect_plot_points(m_h5, data_model, "podil_souse", "Podíl souše")
-p_h6 <- pred_effect_plot_points(m_h6, data_model, "podil_tezby", "Podíl těžby")
+p_h4 <- pred_effect_plot_points(m_h4, data_model_h1, "podil_kalamity", "Podíl\nkůrovcové kalamity")
+p_h5 <- pred_effect_plot_points(m_h5, data_model_h1, "podil_souse", "Podíl souše")
+p_h6 <- pred_effect_plot_points(m_h6, data_model_h1, "podil_tezby", "Podíl těžby")
 
 # H7–H8
 p_h7 <- pred_effect_plot_points(m_h7, data_model_h7, "Datum_1", "Datum_1")
