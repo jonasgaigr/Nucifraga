@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-This repository contains scripts, data, and visualizations for analyzing ořešník (nutcracker) survey data in relation to forest characteristics, disturbances, and observation conditions. The analyses focus on exploring hypotheses about factors affecting the number of observed ořešníks (*Celkem_zjisteno_oresniku*) using **negative binomial models (NB)** and visualizing predictions with **ggplot2**.
+This repository contains scripts, data, and visualizations for analyzing [nutcracker](https://portal.nature.cz/w/druh-1281#/) survey data in relation to forest characteristics, disturbances, and observation conditions. The analyses focus on exploring hypotheses about factors affecting the number of observed ořešníks (*Celkem_zjisteno_oresniku*) using **negative binomial models (NB)** and visualizing predictions with **ggplot2**.
 
 ---
 
