@@ -1,0 +1,124 @@
+kfme_cell,observer,issue
+5152ba,Vojtěch Waldhauser,Calamity area exceeds remaining spruce area
+5447ab,Klára Bystroňová,Calamity area exceeds remaining spruce area
+6170bd,Ondřej Boháč,Calamity area exceeds remaining spruce area
+6246aa,Lucie Votrubcová,Calamity area exceeds remaining spruce area
+6356db,Michal Souček,Calamity area exceeds remaining spruce area
+6566ac,Vojtěch Honzátko,Calamity area exceeds remaining spruce area
+6662bd,Ivo Hertl,Calamity area exceeds remaining spruce area
+6763bc,Ivo Hertl,Calamity area exceeds remaining spruce area
+5361ac,Tomáš Diviš,Date of visit 1 missing
+5446ac,Vladimír Volf,Date of visit 1 missing
+5870ac,Lenka Možná,Date of visit 1 missing
+5945bd,Milan Tichai; Kateřina Tichaiová,Date of visit 1 missing
+6055ac,Jiří Pokorný,Date of visit 1 missing
+6055cc,Jiří Pokorný,Date of visit 1 missing
+6153ab,Jiří Pokorný,Date of visit 1 missing
+6155ac,Jiří Pokorný,Date of visit 1 missing
+6155dc,Jiří Pokorný,Date of visit 1 missing
+6254dc,Jiří Pokorný,Date of visit 1 missing
+6254dd,Jiří Pokorný,Date of visit 1 missing
+6476da,Martin Šerek,Date of visit 1 missing
+6476dc,Martin Šerek,Date of visit 1 missing
+6575bb,Jan Przybyla,Date of visit 1 missing
+6576ba,Martin Šerek,Date of visit 1 missing
+6576bd,Martin Šerek,Date of visit 1 missing
+6577aa,Martin Šerek,Date of visit 1 missing
+6846cd,Vladimír Volf,Date of visit 1 missing
+6946ab,Vladimír Volf,Date of visit 1 missing
+5361ac,Tomáš Diviš,Date of visit 2 missing
+5462db,Petr Kafka,Date of visit 2 missing
+5765ca,Kateřina Rohová,Date of visit 2 missing
+5769cb,Natalia Atamas,Date of visit 2 missing
+5769da,Natalia Atamas,Date of visit 2 missing
+5865cb,Kateřina Rohová,Date of visit 2 missing
+5870ac,Lenka Možná,Date of visit 2 missing
+5941ad,Pavla Tájková,Date of visit 2 missing
+5945bd,Milan Tichai; Kateřina Tichaiová,Date of visit 2 missing
+6055cc,Jiří Pokorný,Date of visit 2 missing
+6153ab,Jiří Pokorný,Date of visit 2 missing
+6155ac,Jiří Pokorný,Date of visit 2 missing
+6155dc,Jiří Pokorný,Date of visit 2 missing
+6254dc,Jiří Pokorný,Date of visit 2 missing
+6254dd,Jiří Pokorný,Date of visit 2 missing
+6476dc,Martin Šerek,Date of visit 2 missing
+6575ba,Jiří Lehký,Date of visit 2 missing
+6575bb,Jan Przybyla,Date of visit 2 missing
+6576ab,Martin Šerek,Date of visit 2 missing
+6576ba,Martin Šerek,Date of visit 2 missing
+6577aa,Martin Šerek,Date of visit 2 missing
+6675bd,Jiří Lehký,Date of visit 2 missing
+6846cd,Vladimír Volf,Date of visit 2 missing
+6857dd,Ivan Mikuláš,Date of visit 2 missing
+6946ab,Vladimír Volf,Date of visit 2 missing
+6956bb,Ivan Mikuláš,Date of visit 2 missing
+6957ac,Ivan Mikuláš,Date of visit 2 missing
+7057ac,Ivan Mikuláš,Date of visit 2 missing
+5258cb,Karolina Mikslová,Device identity uncertain according to observer
+5259ac,Karolina Mikslová,Device identity uncertain according to observer
+5259cb,Karolina Mikslová,Device identity uncertain according to observer
+5941ad,Pavla Tájková,Device identity uncertain according to observer
+6946dd,Aleš Vondrka,Device identity uncertain according to observer
+6947dd,Aleš Vondrka,Device identity uncertain according to observer
+6948cc,Aleš Vondrka,Device identity uncertain according to observer
+6949ac,Aleš Vondrka,Device identity uncertain according to observer
+7046bb,Aleš Vondrka,Device identity uncertain according to observer
+7047ab,Aleš Vondrka,Device identity uncertain according to observer
+7047ba,Aleš Vondrka,Device identity uncertain according to observer
+7047db,Aleš Vondrka,Device identity uncertain according to observer
+7048cb,Aleš Vondrka,Device identity uncertain according to observer
+7148bb,Aleš Vondrka,Device identity uncertain according to observer
+7149aa,Aleš Vondrka,Device identity uncertain according to observer
+7149ab,Aleš Vondrka,Device identity uncertain according to observer
+7149ca,Aleš Vondrka,Device identity uncertain according to observer
+7151aa,Aleš Vondrka,Device identity uncertain according to observer
+7151ad,Aleš Vondrka,Device identity uncertain according to observer
+7249ab,Aleš Vondrka,Device identity uncertain according to observer
+6150db,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
+6150dc,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
+6250aa,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
+6250ab,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
+5258cb,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9
+5259ac,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9
+5259cb,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9
+5361ac,Tomáš Diviš,Device loudness missing ('NO DATA'); excluded from H9
+5941ab,Pavla Tájková,Device loudness missing ('NO DATA'); excluded from H9
+6474dc,Róbert Špilák,Device loudness missing ('NO DATA'); excluded from H9
+6475dc,Róbert Špilák,Device loudness missing ('NO DATA'); excluded from H9
+6475dd,Róbert Špilák,Device loudness missing ('NO DATA'); excluded from H9
+6960cb,Tomáš Vysoký,Device loudness missing ('NO DATA'); excluded from H9
+6577aa,Martin Šerek,Transect length > 10 km; check whether both visits were summed
+6947dd,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+6948cc,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+6949ac,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7046bb,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7047ab,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7047ba,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7047db,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7048cb,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7148bb,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7149ca,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7151ad,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+7249ab,Aleš Vondrka,Transect length > 10 km; check whether both visits were summed
+5848dd,Miloslav Haifler,Transect length missing ('NO DATA'); excluded from all models
+6574dc,Pavel Bílek,Transect length missing ('NO DATA'); excluded from all models
+5253ab,Vojtěch Waldhauser,Visit 1 dated after visit 2; likely entry error
+5254bb,Vojtěch Waldhauser,Visit 1 dated after visit 2; likely entry error
+5253ab,Vojtěch Waldhauser,Visit 1 outside February-April; excluded from H7
+5254bb,Vojtěch Waldhauser,Visit 1 outside February-April; excluded from H7
+5347ba,Ondřej Volf,Visit 1 outside February-April; excluded from H7
+5741ba,Miroslava Horáková,Visit 1 outside February-April; excluded from H7
+5868bc,Jan Křenek,Visit 1 outside February-April; excluded from H7
+6048dc,Milan Tichai,Visit 1 without playback; provoked count set to NA
+5462db,Petr Kafka,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+5765ca,Kateřina Rohová,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+5865cb,Kateřina Rohová,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+5941ad,Pavla Tájková,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+6575ba,Jiří Lehký,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+6675bd,Jiří Lehký,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+6857dd,Ivan Mikuláš,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+6956bb,Ivan Mikuláš,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+6957ac,Ivan Mikuláš,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+7057ac,Ivan Mikuláš,"Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"
+5347da,Ondřej Volf,Visit 2 outside June-July; excluded from H8
+6378dc,Jakub Szkandera,Visit 2 outside June-July; excluded from H8
