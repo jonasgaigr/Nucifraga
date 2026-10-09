@@ -70,19 +70,45 @@ count_unit <- "territories"
 # biologically meaningful step and the spatial models converge reliably.
 # Only the slope interpretation matters; centring does not change it.
 predictor_info <- tribble(
-  ~term,        ~raw,             ~centre, ~scale, ~step_label,                     ~axis_label,
-  "spruce_s",   "spruce_km2",     0,       1,      "per 1 km² of spruce forest",    "Spruce forest area (km²)",
-  "ndop_s",     "ndop_records",   0,       1,      "per 1 NDOP record",             "NDOP records (n)",
-  "prob_s",     "prob_occ",       0,       0.1,    "per 0.1 increase",              "Modelled occurrence probability",
-  "calamity_s", "prop_calamity",  0,       0.1,    "per 10 percentage points",      "Bark-beetle calamity area (proportion)",
-  "dry_s",      "prop_dry",       0,       0.1,    "per 10 percentage points",      "Standing dead spruce area (proportion)",
-  "harvest_s",  "prop_harvest",   0,       0.1,    "per 10 percentage points",      "Salvage-logged area (proportion)",
-  "doy_1_s",    "doy_1",          80,      10,     "per 10 days",                   "Date of visit 1",
-  "doy_2_s",    "doy_2",          190,     10,     "per 10 days",                   "Date of visit 2",
-  "loudness_s", "loudness_db",    85,      10,     "per 10 dB",                     "Device loudness (dB at 1 m)",
-  "lat_s",      "lat",            50,      1,      "per 1° latitude (~111 km)",     "Latitude (°N)",
-  "lon_s",      "lon",            15,      1,      "per 1° longitude (~72 km)",     "Longitude (°E)"
+  ~term,        ~raw,            ~centre, ~scale, ~step_label,                 ~axis_label,                              ~phrase,
+  "spruce_s",   "spruce_km2",    0,       1,      "per 1 km² of spruce forest", "Spruce forest area (km²)",               "spruce forest area",
+  "ndop_s",     "ndop_records",  0,       1,      "per 1 NDOP record",          "NDOP records (n)",                       "the number of NDOP records",
+  "prob_s",     "prob_occ",      0,       0.1,    "per 0.1 increase",           "Modelled occurrence probability",        "modelled occurrence probability",
+  "calamity_s", "prop_calamity", 0,       0.1,    "per 10 percentage points",   "Bark-beetle calamity area (proportion)", "the proportion of bark-beetle calamity area",
+  "dry_s",      "prop_dry",      0,       0.1,    "per 10 percentage points",   "Standing dead spruce area (proportion)", "the proportion of standing dead spruce",
+  "harvest_s",  "prop_harvest",  0,       0.1,    "per 10 percentage points",   "Salvage-logged area (proportion)",       "the proportion of salvage-logged area",
+  "doy_1_s",    "doy_1",         80,      10,     "per 10 days",                "Date of visit 1",                        "the date of visit 1",
+  "doy_2_s",    "doy_2",         190,     10,     "per 10 days",                "Date of visit 2",                        "the date of visit 2",
+  "loudness_s", "loudness_db",   85,      10,     "per 10 dB",                  "Device loudness (dB at 1 m)",            "device loudness",
+  "lat_s",      "lat",           50,      1,      "per 1° latitude (~111 km)",  "Latitude (°N)",                          "latitude",
+  "lon_s",      "lon",           15,      1,      "per 1° longitude (~72 km)",  "Longitude (°E)",                         "longitude"
 )
+
+#----------------------------------------------------------#
+# Shared model helpers -----
+#----------------------------------------------------------#
+converged <- function(fit) {
+  fit$fit$convergence == 0 && isTRUE(fit$sdr$pdHess)
+}
+
+build_formula <- function(response, predictors, random = NA, extra = NULL) {
+  rhs <- c(predictors, "offset(log(line_km))", if (!is.na(random)) random, extra)
+  as.formula(paste(response, "~", paste(rhs, collapse = " + ")))
+}
+
+# McFadden pseudo-R² of the fixed effects: the null model keeps the offset and
+# any random/spatial terms, so only the predictors' contribution is measured.
+pseudo_r2 <- function(fit, data, response, random = NA, extra = NULL) {
+  null_fit <- update(fit, formula = build_formula(response, "1", random, extra), data = data)
+  as.numeric(1 - logLik(fit) / logLik(null_fit))
+}
+
+# Exponential spatial covariance on the field centroids (km, EPSG:5514)
+spatial_term <- "exp(pos + 0 | group)"
+
+add_spatial_coords <- function(data) {
+  data %>% mutate(pos = numFactor(x_km, y_km), group = factor(1))
+}
 
 #----------------------------------------------------------#
 # Plot theme and palettes -----

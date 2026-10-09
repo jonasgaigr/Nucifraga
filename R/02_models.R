@@ -74,22 +74,6 @@ response_label <- c(
 #----------------------------------------------------------#
 # Fitting helpers -----
 #----------------------------------------------------------#
-converged <- function(fit) {
-  fit$fit$convergence == 0 && isTRUE(fit$sdr$pdHess)
-}
-
-build_formula <- function(response, predictors, random = NA, extra = NULL) {
-  rhs <- c(predictors, "offset(log(line_km))", if (!is.na(random)) random, extra)
-  as.formula(paste(response, "~", paste(rhs, collapse = " + ")))
-}
-
-# McFadden pseudo-R² of the fixed effects: the null model keeps the offset and
-# any random/spatial terms, so only the predictors' contribution is measured.
-pseudo_r2 <- function(fit, data, response, random = NA, extra = NULL) {
-  null_fit <- update(fit, formula = build_formula(response, "1", random, extra), data = data)
-  as.numeric(1 - logLik(fit) / logLik(null_fit))
-}
-
 dharma_summary <- function(sim) {
   tibble(
     dispersion_ratio = unname(testDispersion(sim, plot = FALSE)$statistic),
