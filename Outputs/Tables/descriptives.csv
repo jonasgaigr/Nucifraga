@@ -1,0 +1,50 @@
+group,variable,n,n_missing,mean,sd,min,q25,median,q75,max,n_zero,prop_zero
+sample size,fields in source file,386,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,fields with transect length,384,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,fields with both visits,376,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,fields in total-count models,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H1,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H2,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H3,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H4,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H5,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H6,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H7,360,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H8,354,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v1,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v2,365,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_pres,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H11_pres,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_H11_pres,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_dens,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H11_dens,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_H11_dens,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v1_no_mega,370,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v2_no_mega,361,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v1_no_re,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v2_no_re,365,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+effort: transect length class,above 6 km,55,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+effort: transect length class,below 4 km,22,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+effort: transect length class,missing,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+effort: transect length class,within 4-6 km,307,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+effort,transect length (km),384,2,5.345052083333333,1.730522038199857,1.7,4.5,5,5.6,15.4,0,0
+raw counts,total count (max of visits),386,0,0.7875647668393783,1.21738522313549,0,0,0,1,8,209,0.5414507772020726
+raw counts,count visit 1,386,0,0.5880829015544041,1.1066565784921132,0,0,0,1,8,250,0.6476683937823834
+raw counts,count visit 2,376,10,0.5558510638297872,0.9392580442875458,0,0,0,1,7,240,0.6382978723404256
+raw counts,spontaneous count visit 1,386,0,0.16062176165803108,0.47820402855663774,0,0,0,0,3,339,0.8782383419689119
+raw counts,provoked count visit 1,385,1,0.42857142857142855,0.896006350955383,0,0,0,1,6,278,0.7220779220779221
+raw counts,spontaneous count visit 2,376,10,0.15159574468085107,0.4686407082992015,0,0,0,0,5,329,0.875
+raw counts,provoked count visit 2,376,10,0.40425531914893614,0.7528668611635777,0,0,0,1,5,268,0.7127659574468085
+raw counts,presence (0/1),386,0,0.4585492227979275,0.49892556654018677,0,0,0,1,1,209,0.5414507772020726
+density,total count per km,384,2,0.15212912503602927,0.23688262448365113,0,0,0,0.2222222222222222,1.8181818181818181,207,0.5390625
+density,visit 1 count per km,384,2,0.11244134786664974,0.21261019401188996,0,0,0,0.2,1.8181818181818181,248,0.6458333333333334
+density,visit 2 count per km,374,12,0.10827749619340149,0.1875879733257053,0,0,0,0.19513574660633487,1.4893617021276595,238,0.6363636363636364
+covariates,device loudness (dB at 1 m),377,9,84.55437665782493,8.59933125778719,63.5,81,85.5,89.5,119,0,0
+covariates,visit 1 day of year,367,19,80.32970027247957,20.31938334515603,46,67,79,93,242,0,0
+covariates,visit 2 day of year,358,28,189.3296089385475,14.418816113327331,98,179,187,202.75,212,0,0
+coordinates,latitude (°N),386,0,49.74112835264802,0.5664163064380792,48.58750100700614,49.412503257381196,49.62500344470189,50.062501108966885,50.93750087797138,0,0
+coordinates,longitude (°E),386,0,15.510148082363285,1.8850848698804208,12.14583273369596,13.864582488621044,15.270832688271776,16.85417072698568,18.812509732815045,0,0
+collinearity (total-count data),cor_x_y_sjtsk,NA,NA,-0.2379071057552116,NA,NA,NA,NA,NA,NA,NA,NA
+collinearity (total-count data),cor_lon_lat,NA,NA,-0.04893325469157283,NA,NA,NA,NA,NA,NA,NA,NA
+collinearity (total-count data),vif_presence,NA,NA,1.0021427458589078,NA,NA,NA,NA,NA,NA,NA,NA
+collinearity (total-count data),vif_density,NA,NA,1.000231450111532,NA,NA,NA,NA,NA,NA,NA,NA
