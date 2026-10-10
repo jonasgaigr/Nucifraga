@@ -67,9 +67,9 @@ Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.074 (p < 
 
 ### H7 – Date of visit 1
 
-Density detected in visit 1 decreased with the date of visit 1 (IRR = 0.77 per 10 days, 95% CI 0.68–0.88, p < 0.001; Poisson, log link + exponential spatial covariance, offset log(transect length), n = 360 fields). **Supported (negative effect).**
+Density detected in visit 1 decreased with the date of visit 1 (IRR = 0.77 per 10 days, 95% CI 0.68–0.88, p < 0.001; Poisson, log link + exponential spatial covariance, offset log(transect length), n = 362 fields). **Supported (negative effect).**
 
-Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.040 (p = 0.037; 0–10 km class: I = 0.076, p = 0.047), DHARMa p < 0.001. The reported estimate comes from the refit with an exponential spatial covariance (range parameter 11.5 km, i.e. correlation < 0.05 beyond about 34 km); residual Moran's I after the refit = -0.038 (p = 0.931). Comparison of the focal effect: non-spatial doy_1_s: 0.79 (0.70–0.88) vs spatial 0.77 (0.68–0.88).
+Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.068 (p = 0.001; 0–10 km class: I = 0.164, p < 0.001), DHARMa p < 0.001. The reported estimate comes from the refit with an exponential spatial covariance (range parameter 11.3 km, i.e. correlation < 0.05 beyond about 34 km); residual Moran's I after the refit = -0.039 (p = 0.935). Comparison of the focal effect: non-spatial doy_1_s: 0.79 (0.70–0.88) vs spatial 0.77 (0.68–0.88).
 
 ### H8 – Date of visit 2
 
@@ -137,12 +137,30 @@ Nutcracker density (territories per km of transect) decreased with longitude (IR
 
 Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.022 (p = 0.141; 0–10 km class: I = 0.121, p = 0.003), DHARMa p = 0.081. The reported estimate comes from the refit with an exponential spatial covariance (range parameter 5.0 km, i.e. correlation < 0.05 beyond about 15 km); residual Moran's I after the refit = -0.014 (p = 0.688). Comparison of the focal effect: non-spatial lat_s: 1.52 (1.20–1.93) vs spatial 1.51 (1.12–2.05); non-spatial lon_s: 0.82 (0.76–0.89) vs spatial 0.82 (0.73–0.91).
 
+## Sampling design (Vyber_2025)
+
+In the total-count data, fields selected for 2025 had a mean total count of 1.03 vs 0.46 in the other fields (presence 56 % vs 32 %; n = 226 and 148). Adjusted for transect length, density was 1.88 times higher in selected fields (95% CI 1.30–2.71, p < 0.001; Poisson, log link + exponential spatial covariance). Selection was most likely based on expected occurrence, so it is partly a function of the habitat predictors themselves. The models below add selection status as a covariate. An effect that holds after adjustment is not explained by the design; an effect that weakens may be partly design-driven, or may share variation with the selection criteria (this applies especially to H2 and H3, which are themselves measures of expected occurrence).
+
+| Hypothesis | Step | Unadjusted IRR (95% CI) | Adjusted for selection | Change in log effect | Adjusted verdict |
+|---|---|---|---|---|---|
+| H1 – Spruce forest area | per 1 km² of spruce forest | 1.27 (1.16–1.39) | 1.25 (1.14–1.37) | -7 % | Supported |
+| H2 – NDOP records | per 1 NDOP record | 1.09 (1.04–1.15) | 1.09 (1.04–1.14) | -5 % | Supported |
+| H3 – Modelled occurrence probability | per 0.1 increase | 1.96 (1.59–2.42) | 1.87 (1.53–2.30) | -7 % | Supported |
+| H4 – Bark-beetle calamity | per 10 percentage points | 0.74 (0.63–0.87) | 0.76 (0.65–0.89) | -10 % | Supported |
+| H5 – Standing dead spruce | per 10 percentage points | 0.22 (0.07–0.66) | 0.25 (0.09–0.71) | -8 % | Supported |
+| H6 – Salvage logging | per 10 percentage points | 0.73 (0.62–0.87) | 0.76 (0.64–0.90) | -10 % | Supported |
+| H10 – Latitude (joint model) | per 1° latitude (~111 km) | 1.51 (1.12–2.05) | 1.54 (1.17–2.03) | 4 % | Supported |
+| H11 – Longitude (joint model) | per 1° longitude (~72 km) | 0.82 (0.73–0.91) | 0.84 (0.77–0.93) | -17 % | Supported |
+
+Final fits (spatial where needed), as in the main models. Change in log effect: 100 × (adjusted / unadjusted log-scale slope − 1).
+
 ## Caveats
 
-- **Count unit.** `Celkem_zjisteno_oresniku` equals the maximum of the two visit totals in every field; the source file does not say whether the counts are individuals or territories. Results are labelled 'territories' and must be relabelled if they are individuals.
-- **Effort.** Transect length ranged 1.7–15.4 km (median 5.0); 22 fields were below and 55 above the 4–6 km protocol, 2 had no length. The offset assumes detections scale proportionally with transect length; lengths > 10 km may be the sum of both visits (to verify).
+- **Count unit.** Counts are territories (confirmed by the data owner); `Celkem_zjisteno_oresniku` equals the maximum of the two visit totals in every field.
+- **Effort.** Transect length ranged 1.7–15.4 km (median 5.0); 22 fields were below and 55 above the 4–6 km protocol, 2 had no length. Lengths > 10 km were confirmed as single-visit lengths, not the sum of both visits. The offset assumes detections scale proportionally with transect length.
 - **Total count is a maximum.** Because the total is the maximum of two visits, it is not strictly proportional to the line length per visit; fields with only one visit were excluded from total-count models.
-- **Disturbance variables.** Calamity area is exactly dry + harvested area, so H4 is not independent of H5 and H6. Proportions use remaining spruce + calamity area as the pre-disturbance spruce extent (the old code divided by remaining spruce and dropped 8 fields with proportions > 1).
+- **Disturbance variables.** Calamity area is exactly dry + harvested area, so H4 is not independent of H5 and H6. `SMRK_m2` is the spruce remaining after the calamity (confirmed), so proportions use remaining spruce + calamity area as the pre-disturbance spruce extent (the old code divided by remaining spruce and dropped 8 fields with proportions > 1).
+- **Data corrections.** Field 6048dc: visit 1 was done without playback, so its provoked count is missing. Fields 5253ab and 5254bb: visit 1 was entered in August, after visit 2 (confirmed entry errors); the month was corrected to March, which matches the observer's other visit-1 dates. Device identities marked as uncertain by one observer (16 fields) were verified by the data owner. All flagged records are listed in `Outputs/Tables/data_checks.csv`.
 - **H9 is observational.** Loudness is a property of the device, and almost every observer used one device, so loudness is confounded with observer skill and with the region each observer covered. The observer random effect absorbs part of this; the 119-dB megaphone (4 fields) and 9 fields without loudness data are handled in sensitivity runs and exclusions.
 - **Doba_2 is time of day, not provocation duration.** No duration variable exists in the data, so H9 visit 2 and H8 adjust for time of day instead.
 - **Geography as a proxy.** Latitude and longitude are weakly correlated (r = -0.05, VIF = 1.00 in the joint density model), so the joint and separate models agree. The gradients are probably proxies for elevation, spruce forest cover and mountain ranges (border mountains in the north and west), not causal effects of position. No elevation or forest-cover data were added here.
@@ -150,7 +168,7 @@ Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.022 (p = 
 - **Spatial count models are Poisson-lognormal.** In all spatial refits of the main count models the NB2 dispersion parameter ran to infinity, because the spatial random effect absorbs the extra-Poisson variation. Those refits therefore use a Poisson family with the spatial random effect, which is the boundary case of the same model (see `family_link`).
 - **Conditional residuals.** Post-refit spatial tests use residuals conditional on the fitted spatial random effect (DHARMa cannot simulate conditionally for glmmTMB spatial structures). These remove autocorrelation partly by construction, so they confirm that the structure is adequate rather than providing an independent test.
 - **Multiple testing.** Eleven hypotheses (18 focal tests) were evaluated without correction; individual p-values near 0.05 should be read with caution.
-- **Sampling design.** `Vyber_2025` (selected vs not selected fields) differs strongly in mean count and was not modelled; if field selection depended on expected occurrence, the habitat effects may be partly design-driven.
+- **Sampling design.** Fields selected for 2025 (`Vyber_2025`) had 1.88 times the density of the other fields. Selection was most likely based on expected occurrence, so the habitat effects may be partly design-driven. The main models do not include selection status; selection-adjusted sensitivity models are reported in the section above and in `selection_sensitivity.csv`.
 
 ## Figure legends
 
@@ -169,4 +187,8 @@ Residual spatial autocorrelation in the non-spatial fit: Moran's I = 0.022 (p = 
 **Figure 7.** DHARMa scaled residuals of the final (A) presence and (B) density models with latitude + longitude. Values near 0.5 are as expected; orange (near 0) = fewer and purple (near 1) = more detections than predicted.
 
 **Figure S1.** Moran's I correlograms (10-km distance classes) of the residuals of every main model before (blue) and, where needed, after (orange) adding an exponential spatial covariance. Filled points: p < 0.05.
+
+**Figure S2.** Habitat and geographic effects on nutcracker density without (blue circles) and with (orange triangles) selection status (`Vyber_2025`) as a covariate. Points: IRR from the final models; bars: 95% CIs; log scale; step sizes as in the overview table.
+
+**Figure S3.** Exploratory PCA of the habitat variables (correlation matrix; fields in the total-count models). (A) Variance explained per component (bars) against the broken-stick expectation (points). (B) Correlation circle: black arrows are the active variables; the orange dashed arrow is observed density (square root), projected passively by its correlation with the scores (latitude and longitude, |r| < 0.2, are listed in `pca_loadings.csv`). (C) Field scores coloured by observed density per km of transect. (D) The same scores by selection status, with 95% normal-theory ellipses. NDOP records are log(1 + x)-, occurrence probability log- and disturbance proportions logit-transformed; calamity is omitted because it equals standing dead + salvage-logged area.
 

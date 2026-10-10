@@ -1,0 +1,9 @@
+Hypothesis,Step,Unadjusted IRR (95% CI),Adjusted for selection,Change in log effect,Adjusted verdict
+H1 – Spruce forest area,per 1 km² of spruce forest,1.27 (1.16–1.39),1.25 (1.14–1.37),-7 %,Supported
+H2 – NDOP records,per 1 NDOP record,1.09 (1.04–1.15),1.09 (1.04–1.14),-5 %,Supported
+H3 – Modelled occurrence probability,per 0.1 increase,1.96 (1.59–2.42),1.87 (1.53–2.30),-7 %,Supported
+H4 – Bark-beetle calamity,per 10 percentage points,0.74 (0.63–0.87),0.76 (0.65–0.89),-10 %,Supported
+H5 – Standing dead spruce,per 10 percentage points,0.22 (0.07–0.66),0.25 (0.09–0.71),-8 %,Supported
+H6 – Salvage logging,per 10 percentage points,0.73 (0.62–0.87),0.76 (0.64–0.90),-10 %,Supported
+H10 – Latitude (joint model),per 1° latitude (~111 km),1.51 (1.12–2.05),1.54 (1.17–2.03),4 %,Supported
+H11 – Longitude (joint model),per 1° longitude (~72 km),0.82 (0.73–0.91),0.84 (0.77–0.93),-17 %,Supported

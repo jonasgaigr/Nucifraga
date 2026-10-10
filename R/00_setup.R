@@ -62,8 +62,8 @@ line_reference_km <- 5
 window_visit_1 <- 2:4 # February-April
 window_visit_2 <- 6:7 # June-July
 
-# Unit of the counts is not stated in the source file (see README). Change it
-# here and every axis label and reporting sentence follows.
+# Unit of the counts: territories (confirmed by the data owner; the source file
+# itself does not say). Every axis label and reporting sentence follows this.
 count_unit <- "territories"
 
 # Predictors are centred and scaled so that the reported IRR/OR refers to a
@@ -108,6 +108,22 @@ spatial_term <- "exp(pos + 0 | group)"
 
 add_spatial_coords <- function(data) {
   data %>% mutate(pos = numFactor(x_km, y_km), group = factor(1))
+}
+
+# Refit with the spatial covariance, keeping family, zero-inflation and random
+# effects. The spatial random effect also absorbs extra-Poisson variation, and
+# in these data NB2 theta then runs to infinity, which leaves the NB2 fit
+# unconverged or on the boundary. A Poisson model with the spatial random
+# effect (a spatial Poisson-lognormal model) is then the same model, estimated
+# properly.
+fit_spatial <- function(fit, data, response, predictors, random = NA) {
+  sp_data <- add_spatial_coords(data)
+  sp_formula <- build_formula(response, predictors, random, spatial_term)
+  fit_sp <- update(fit, formula = sp_formula, data = sp_data)
+  if (family(fit_sp)$family == "nbinom2" && (!converged(fit_sp) || sigma(fit_sp) > 1e3)) {
+    fit_sp <- update(fit, formula = sp_formula, data = sp_data, family = poisson)
+  }
+  fit_sp
 }
 
 #----------------------------------------------------------#

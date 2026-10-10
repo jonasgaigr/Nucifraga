@@ -126,6 +126,27 @@ fields <- fields %>%
     observer = str_replace(observer, "Vítezslav", "Vítězslav")
   )
 
+# Visit 1 entered in August, after visit 2, in two fields of one observer
+# (confirmed entry errors). The month is read as 03 typed as 08: the corrected
+# dates fall within this observer's other visit-1 dates (22 March-3 April) and
+# on days on which the same observer surveyed neighbouring fields.
+date_fixes <- tribble(
+  ~kfme_cell, ~date_1_recorded, ~date_1_corrected,
+  "5253ab",   "2025-08-30",     "2025-03-30",
+  "5254bb",   "2025-08-23",     "2025-03-23"
+) %>%
+  mutate(across(starts_with("date"), as_date))
+
+recorded <- fields$date_1[match(date_fixes$kfme_cell, fields$kfme_cell)]
+if (!identical(recorded, date_fixes$date_1_recorded)) {
+  stop("Source dates for the visit-1 fixes have changed; review date_fixes in 01_import_clean.R.")
+}
+
+fields <- fields %>%
+  rows_update(date_fixes %>% select(kfme_cell, date_1 = date_1_corrected), by = "kfme_cell")
+
+stopifnot(!any(fields$date_1 > fields$date_2, na.rm = TRUE))
+
 #----------------------------------------------------------#
 # Derived variables -----
 #----------------------------------------------------------#
@@ -152,8 +173,9 @@ fields <- fields %>%
     presence = as.integer(count_total > 0),
 
     spruce_km2 = spruce_m2 / 1e6,
-    # Calamity area equals dry + harvested area, and exceeds remaining spruce
-    # in some fields. Remaining spruce + calamity is therefore used as the
+    # SMRK_m2 is the spruce remaining after the calamity (confirmed by the data
+    # owner). Calamity area equals dry + harvested area, and exceeds remaining
+    # spruce in some fields. Remaining spruce + calamity is therefore the
     # pre-disturbance spruce extent, so the proportions stay within 0-1 and
     # no field has to be dropped.
     spruce_before_m2 = spruce_m2 + calamity_m2,
@@ -176,7 +198,9 @@ fields <- fields %>%
       levels = c("morning", "afternoon/evening", "morning + evening")
     ),
 
-    selected_2025 = recode(selected_2025, ano = "yes", ne = "no"),
+    # Fields selected for 2025 were most likely chosen by expected occurrence,
+    # so selection status is a design covariate in sensitivity models
+    selected_2025 = factor(recode(selected_2025, ano = "yes", ne = "no"), levels = c("no", "yes")),
     observer = factor(observer),
     x_km = x_sjtsk / 1000,
     y_km = y_sjtsk / 1000
@@ -199,18 +223,18 @@ flag <- function(cond, issue) {
 
 data_checks <- bind_rows(
   flag(is.na(line_km), "Transect length missing ('NO DATA'); excluded from all models"),
-  flag(line_km > 10, "Transect length > 10 km; check whether both visits were summed"),
+  flag(line_km > 10, "Transect length > 10 km; confirmed as one visit's length (not both visits summed), kept"),
   flag(is.na(loudness_db), "Device loudness missing ('NO DATA'); excluded from H9"),
   flag(loudness_db >= 110, "Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it"),
-  flag(str_detect(device, "musím ještě ověřit|nevím"), "Device identity uncertain according to observer"),
+  flag(str_detect(device, "musím ještě ověřit|nevím"), "Device identity marked uncertain by observer; verified by data owner, kept"),
   flag(kfme_cell %in% corrections$kfme_cell, "Visit 1 without playback; provoked count set to NA"),
   flag(!visit_2_done, "Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"),
   flag(is.na(date_1), "Date of visit 1 missing"),
   flag(is.na(date_2), "Date of visit 2 missing"),
   flag(!is.na(date_1) & !in_window_1, "Visit 1 outside February-April; excluded from H7"),
   flag(!is.na(date_2) & !in_window_2, "Visit 2 outside June-July; excluded from H8"),
-  flag(date_1 > date_2, "Visit 1 dated after visit 2; likely entry error"),
-  flag(spruce_m2 < calamity_m2, "Calamity area exceeds remaining spruce area")
+  flag(kfme_cell %in% date_fixes$kfme_cell, "Visit 1 dated in August, after visit 2 (entry error); month corrected to March"),
+  flag(spruce_m2 < calamity_m2, "Calamity area exceeds remaining spruce area; kept (proportions use remaining spruce + calamity)")
 ) %>%
   arrange(issue, kfme_cell)
 

@@ -24,11 +24,13 @@ R/
 ├── 03_spatial.R        # spatial autocorrelation tests, spatial refits where needed
 ├── 04_figures.R        # publication figures (PDF + 600-dpi PNG/TIFF)
 ├── 05_tables.R         # result tables, descriptives, results_summary.md
-└── run_all.R           # runs 01–05 and writes session info
+├── 06_exploratory_pca.R # exploratory PCA of the habitat variables
+└── run_all.R           # runs 01–06 and writes session info
 Outputs/
-├── Figures/            # fig1–fig7, figS1
+├── Figures/            # fig1–fig7, figS1–figS3
 ├── Tables/             # model_results.{csv,xlsx}, model_diagnostics.csv,
-│                       # descriptives.csv, data_checks.csv
+│                       # descriptives.csv, data_checks.csv,
+│                       # selection_sensitivity.csv, pca_*.csv
 ├── results_summary.md  # ready-to-paste reporting sentences, caveats, figure legends
 └── session_info.txt
 ```
@@ -50,7 +52,7 @@ renv::restore()
 Rscript R/run_all.R
 ```
 
-The full run takes roughly 15–25 minutes; the spatial refits in `03_spatial.R`
+The full run takes roughly 25–40 minutes; the spatial refits in `03_spatial.R`
 take most of that time. Each numbered script can also be run on its own,
 because it reads its inputs from disk. All paths are relative (`here::here()`).
 The random seed for the DHARMa simulations and figure jitter is set in
@@ -64,7 +66,7 @@ English snake_case in `01_import_clean.R`:
 | Original column | Clean name | Content |
 |---|---|---|
 | `ID`, `POLE` | `field_id`, `kfme_cell` | field ID and KFME grid code |
-| `SMRK_m2` | `spruce_m2` → `spruce_km2` | remaining spruce forest area |
+| `SMRK_m2` | `spruce_m2` → `spruce_km2` | spruce forest area remaining after the calamity |
 | `Pocet_nalezu` | `ndop_records` | number of NDOP (species occurrence database) records |
 | `prob_1h_mean` | `prob_occ` | modelled occurrence probability 2014–2017 |
 | `Plocha kurovcove kalamity celkem (m2)` | `calamity_m2` | bark-beetle calamity area (= dry + harvested) |
@@ -79,7 +81,7 @@ English snake_case in `01_import_clean.R`:
 | `Doba_2` | `time_of_day_2` | **time of day** of visit 2 (morning / afternoon-evening / both) – not provocation duration |
 | `Zarizeni` | `device` | playback device (free text) |
 | `Hlasitost` | `loudness_db` | device loudness at 1 m and maximum volume (dB; 63.5–119; 9 missing) |
-| `DELKA_LINII` | `line_km` | total transect length walked (already in **km**; 1.7–15.4; 2 missing) |
+| `DELKA_LINII` | `line_km` | transect length walked per visit (already in **km**; 1.7–15.4; 2 missing) |
 | `X`, `Y` | `x_sjtsk`, `y_sjtsk` → `lon`, `lat` | field centroid |
 
 ### Coordinates
@@ -96,9 +98,9 @@ against true north.
 ### Count unit
 
 In every field `count_total = max(count_1, count_2)`, and
-`count_v = spont_v + prov_v`. The source file does not say whether these are
-**individuals or territories**. Figures and text currently say "territories";
-to change this, edit `count_unit` in `00_setup.R`.
+`count_v = spont_v + prov_v`. The counts are **territories** (confirmed by the
+data owner; the source file itself does not say). Labels follow `count_unit`
+in `00_setup.R`.
 
 ### Data cleaning decisions
 
@@ -109,12 +111,22 @@ All flagged records are listed in `Outputs/Tables/data_checks.csv`.
   set to NA, and these fields are excluded from total-count models.
 - Field 6048dc: the device note says visit 1 was done without playback, so
   its provoked visit-1 count is set to NA.
-- Disturbance proportions = area / (remaining spruce + calamity area). The
+- Fields 5253ab and 5254bb: visit 1 was entered in August, after visit 2
+  (confirmed entry errors). The month is corrected from 08 to 03 in
+  `01_import_clean.R`. The corrected dates (30 and 23 March) fall within the
+  same observer's other visit-1 dates (22 March–3 April), on days on which
+  neighbouring fields were surveyed. The script stops if the source values
+  change, and if any visit 1 is still dated after visit 2.
+- Transect lengths > 10 km (13 fields) were confirmed as single-visit lengths,
+  not the sum of both visits, and are kept.
+- Device identities that one observer marked as uncertain (16 fields) were
+  verified by the data owner and are kept.
+- Disturbance proportions = area / (remaining spruce + calamity area);
+  `SMRK_m2` is the spruce remaining after the calamity (confirmed). The
   calamity area exceeds the remaining spruce in 8 fields, which the previous
   analysis dropped.
 - Date models use only visits in the protocol windows (visit 1:
-  February–April, visit 2: June–July). Two fields have visit 1 dated after
-  visit 2.
+  February–April, visit 2: June–July).
 
 ## Effort correction
 
@@ -159,6 +171,40 @@ random effect. Device names are free text, and almost every observer used a
 single device, so a device effect cannot be separated from an observer effect.
 H9 sensitivity runs exclude the 119-dB megaphone and drop the random effect.
 
+## Sampling design (`Vyber_2025`)
+
+Fields selected for 2025 have about twice the mean count of the other fields.
+Selection was most likely based on expected occurrence, so the habitat effects
+may be partly a product of the design. The main models leave selection status
+out; `02_models.R` adds it as a covariate in sensitivity models (`SEL` for the
+selection effect alone, `H1_sel`–`H6_sel` and `H10_H11_dens_sel`). The
+adjusted and unadjusted effects are compared in
+`Outputs/Tables/selection_sensitivity.csv`, `results_summary.md` and
+Figure S2. Because H2 (NDOP records) and H3 (modelled occurrence probability)
+are themselves measures of expected occurrence, a weaker effect after
+adjustment there may mean shared variation with the selection criteria, not
+only a design artefact.
+
+## Exploratory PCA
+
+`06_exploratory_pca.R` replaces the earlier vegan PCA, which mixed counts with
+predictors, used raw m² areas and grouped points by field ID. The new version
+is a correlation-matrix PCA of the habitat predictors only, on the fields in
+the total-count models:
+
+- spruce area;
+- NDOP records, log(1 + x);
+- occurrence probability, log;
+- standing dead and salvage-logged proportions, logit.
+
+Calamity is left out because it equals dry + harvested area. Density (square
+root), latitude and longitude are projected passively, so they do not shape
+the axes. Components are retained by the broken-stick rule. An NB2/Poisson
+model of the total count on PC1 and PC2, with the same offset and a spatial
+refit, shows how much density follows the joint habitat gradient. Outputs:
+`pca_variance.csv`, `pca_loadings.csv`, `pca_density_model.csv` and Figure S3.
+This analysis is descriptive; the hypothesis tests are in 02–03.
+
 ## Spatial autocorrelation
 
 For every model, `03_spatial.R` tests the residuals with:
@@ -187,11 +233,16 @@ can be judged.
 - `Outputs/Tables/model_diagnostics.csv`: DHARMa dispersion, zero-inflation,
   uniformity and outlier tests, plus Poisson/NB2/ZINB AIC.
 - `Outputs/Tables/descriptives.csv`: sample sizes, effort distribution, raw
-  and density summaries, X–Y correlation and VIF.
+  and density summaries, X–Y correlation and VIF, and summaries by selection
+  status.
+- `Outputs/Tables/selection_sensitivity.csv`: habitat and geographic effects
+  with and without selection status as a covariate.
+- `Outputs/Tables/pca_*.csv`: exploratory PCA (variance, loadings, density
+  model).
 - `Outputs/results_summary.md`: one paragraph per hypothesis, caveats and
   figure legends.
-- `Outputs/Figures/`: figures at 175 mm (double column) as PDF, 600-dpi PNG
-  and TIFF.
+- `Outputs/Figures/`: figures as PDF, 600-dpi PNG and TIFF, mostly at 175 mm
+  (double column).
 
 ## License
 

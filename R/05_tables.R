@@ -17,10 +17,11 @@ fmt_p <- function(p) if_else(p < 0.001, "< 0.001", paste("=", formatC(p, format 
 term_labels <- predictor_info %>%
   select(term, term_label = axis_label, step_label, phrase) %>%
   bind_rows(tibble(
-    term = c("time_of_day_2afternoon/evening", "time_of_day_2morning + evening"),
-    term_label = c("Time of day: afternoon/evening (vs morning)", "Time of day: morning + evening (vs morning)"),
-    step_label = "vs morning",
-    phrase = c("afternoon/evening visits", "visits spanning morning and evening")
+    term = c("time_of_day_2afternoon/evening", "time_of_day_2morning + evening", "selected_2025yes"),
+    term_label = c("Time of day: afternoon/evening (vs morning)", "Time of day: morning + evening (vs morning)",
+                   "Selected for 2025 (vs not selected)"),
+    step_label = c("vs morning", "vs morning", "selected vs not selected"),
+    phrase = c("afternoon/evening visits", "visits spanning morning and evening", "selection for 2025")
   ))
 
 capitalise <- function(x) paste0(toupper(str_sub(x, 1, 1)), str_sub(x, 2))
@@ -189,6 +190,21 @@ descriptives <- bind_rows(
   describe(fields$doy_2, "visit 2 day of year", "covariates"),
   describe(fields$lat, "latitude (°N)", "coordinates"),
   describe(fields$lon, "longitude (°E)", "coordinates"),
+  # Sampling design: selected (Vyber_2025) vs not selected fields
+  fields %>%
+    group_by(selected_2025) %>%
+    group_modify(\(d, k) bind_rows(
+      describe(d$count_total, "total count (max of visits)"),
+      describe(d$density, "total count per km"),
+      describe(d$presence, "presence (0/1)"),
+      describe(d$spruce_km2, "spruce forest area (km²)"),
+      describe(d$ndop_records, "NDOP records"),
+      describe(d$prob_occ, "modelled occurrence probability"),
+      describe(d$prop_calamity, "calamity proportion")
+    ) %>% select(-group)) %>%
+    ungroup() %>%
+    mutate(group = paste0("selected_2025 = ", selected_2025)) %>%
+    select(group, variable:prop_zero),
   geo_collinearity %>%
     pivot_longer(everything(), names_to = "variable", values_to = "mean") %>%
     mutate(group = "collinearity (total-count data)")
@@ -307,14 +323,86 @@ overview_md <- c(
   pmap_chr(overview, \(...) paste0("| ", paste(c(...), collapse = " | "), " |"))
 )
 
+#----------------------------------------------------------#
+# Sampling design: selection-adjusted sensitivity models -----
+#----------------------------------------------------------#
+final_all <- model_results %>% filter(is_final)
+
+effect_text <- function(r) {
+  paste0(fmt(r$effect), " (", fmt(r$effect_ci_low), "–", fmt(r$effect_ci_high), ")")
+}
+
+sel_row <- final_all %>% filter(model_id == "SEL", term == "selected_2025yes")
+sel_by_group <- total_data %>%
+  group_by(selected_2025) %>%
+  summarise(n = n(), mean_count = mean(count_total), presence = mean(presence))
+sel_stat <- \(col, level) sel_by_group[[col]][sel_by_group$selected_2025 == level]
+
+selection_pairs <- tribble(
+  ~label,                                 ~main,          ~adjusted,          ~term,
+  "H1 – Spruce forest area",              "H1",           "H1_sel",           "spruce_s",
+  "H2 – NDOP records",                    "H2",           "H2_sel",           "ndop_s",
+  "H3 – Modelled occurrence probability", "H3",           "H3_sel",           "prob_s",
+  "H4 – Bark-beetle calamity",            "H4",           "H4_sel",           "calamity_s",
+  "H5 – Standing dead spruce",            "H5",           "H5_sel",           "dry_s",
+  "H6 – Salvage logging",                 "H6",           "H6_sel",           "harvest_s",
+  "H10 – Latitude (joint model)",         "H10_H11_dens", "H10_H11_dens_sel", "lat_s",
+  "H11 – Longitude (joint model)",        "H10_H11_dens", "H10_H11_dens_sel", "lon_s"
+)
+
+selection_table <- pmap_dfr(selection_pairs, \(label, main, adjusted, term) {
+  m <- final_all %>% filter(model_id == main, term == !!term)
+  a <- final_all %>% filter(model_id == adjusted, term == !!term)
+  tibble(
+    Hypothesis = label,
+    Step = m$step,
+    `Unadjusted IRR (95% CI)` = effect_text(m),
+    `Adjusted for selection` = effect_text(a),
+    `Change in log effect` = paste0(fmt(100 * (a$estimate_log / m$estimate_log - 1), 0), " %"),
+    `Adjusted verdict` = capitalise(classify_support(a$expected_sign, a$estimate_log, a$ci_low_log, a$ci_high_log))
+  )
+})
+write_csv(selection_table, file.path(dir_tables, "selection_sensitivity.csv"))
+
+md_table <- function(tbl) {
+  c(
+    paste0("| ", paste(names(tbl), collapse = " | "), " |"),
+    paste0("|", strrep("---|", ncol(tbl))),
+    pmap_chr(tbl, \(...) paste0("| ", paste(c(...), collapse = " | "), " |"))
+  )
+}
+
+selection_md <- c(
+  "## Sampling design (Vyber_2025)",
+  "",
+  paste0(
+    "In the total-count data, fields selected for 2025 had a mean total count of ", fmt(sel_stat("mean_count", "yes")),
+    " vs ", fmt(sel_stat("mean_count", "no")), " in the other fields (presence ",
+    fmt(100 * sel_stat("presence", "yes"), 0), " % vs ", fmt(100 * sel_stat("presence", "no"), 0), " %; n = ",
+    sel_stat("n", "yes"), " and ", sel_stat("n", "no"), "). Adjusted for transect length, density was ",
+    fmt(sel_row$effect), " times higher in selected fields (95% CI ", fmt(sel_row$effect_ci_low), "–",
+    fmt(sel_row$effect_ci_high), ", p ", fmt_p(sel_row$p_value), "; ", sel_row$family_link, "). ",
+    "Selection was most likely based on expected occurrence, so it is partly a function of the habitat predictors themselves. ",
+    "The models below add selection status as a covariate. An effect that holds after adjustment is not explained by the ",
+    "design; an effect that weakens may be partly design-driven, or may share variation with the selection criteria ",
+    "(this applies especially to H2 and H3, which are themselves measures of expected occurrence)."
+  ),
+  "",
+  md_table(selection_table),
+  "",
+  "Final fits (spatial where needed), as in the main models. Change in log effect: 100 × (adjusted / unadjusted log-scale slope − 1).",
+  ""
+)
+
 d_line <- descriptives %>% filter(variable == "transect length (km)")
 line_counts <- fields %>% count(line_class) %>% tibble::deframe()
 
 caveats <- c(
-  paste0("**Count unit.** `Celkem_zjisteno_oresniku` equals the maximum of the two visit totals in every field; the source file does not say whether the counts are individuals or territories. Results are labelled '", unit, "' and must be relabelled if they are individuals."),
-  paste0("**Effort.** Transect length ranged ", fmt(d_line$min, 1), "–", fmt(d_line$max, 1), " km (median ", fmt(d_line$median, 1), "); ", line_counts[["below 4 km"]], " fields were below and ", line_counts[["above 6 km"]], " above the 4–6 km protocol, ", line_counts[["missing"]], " had no length. The offset assumes detections scale proportionally with transect length; lengths > 10 km may be the sum of both visits (to verify)."),
+  paste0("**Count unit.** Counts are ", unit, " (confirmed by the data owner); `Celkem_zjisteno_oresniku` equals the maximum of the two visit totals in every field."),
+  paste0("**Effort.** Transect length ranged ", fmt(d_line$min, 1), "–", fmt(d_line$max, 1), " km (median ", fmt(d_line$median, 1), "); ", line_counts[["below 4 km"]], " fields were below and ", line_counts[["above 6 km"]], " above the 4–6 km protocol, ", line_counts[["missing"]], " had no length. Lengths > 10 km were confirmed as single-visit lengths, not the sum of both visits. The offset assumes detections scale proportionally with transect length."),
   "**Total count is a maximum.** Because the total is the maximum of two visits, it is not strictly proportional to the line length per visit; fields with only one visit were excluded from total-count models.",
-  "**Disturbance variables.** Calamity area is exactly dry + harvested area, so H4 is not independent of H5 and H6. Proportions use remaining spruce + calamity area as the pre-disturbance spruce extent (the old code divided by remaining spruce and dropped 8 fields with proportions > 1).",
+  "**Disturbance variables.** Calamity area is exactly dry + harvested area, so H4 is not independent of H5 and H6. `SMRK_m2` is the spruce remaining after the calamity (confirmed), so proportions use remaining spruce + calamity area as the pre-disturbance spruce extent (the old code divided by remaining spruce and dropped 8 fields with proportions > 1).",
+  "**Data corrections.** Field 6048dc: visit 1 was done without playback, so its provoked count is missing. Fields 5253ab and 5254bb: visit 1 was entered in August, after visit 2 (confirmed entry errors); the month was corrected to March, which matches the observer's other visit-1 dates. Device identities marked as uncertain by one observer (16 fields) were verified by the data owner. All flagged records are listed in `Outputs/Tables/data_checks.csv`.",
   "**H9 is observational.** Loudness is a property of the device, and almost every observer used one device, so loudness is confounded with observer skill and with the region each observer covered. The observer random effect absorbs part of this; the 119-dB megaphone (4 fields) and 9 fields without loudness data are handled in sensitivity runs and exclusions.",
   "**Doba_2 is time of day, not provocation duration.** No duration variable exists in the data, so H9 visit 2 and H8 adjust for time of day instead.",
   paste0("**Geography as a proxy.** Latitude and longitude are weakly correlated (r = ", fmt(geo_collinearity$cor_lon_lat), ", VIF = ", fmt(geo_collinearity$vif_density), " in the joint density model), so the joint and separate models agree. The gradients are probably proxies for elevation, spruce forest cover and mountain ranges (border mountains in the north and west), not causal effects of position. No elevation or forest-cover data were added here."),
@@ -322,7 +410,7 @@ caveats <- c(
   "**Spatial count models are Poisson-lognormal.** In all spatial refits of the main count models the NB2 dispersion parameter ran to infinity, because the spatial random effect absorbs the extra-Poisson variation. Those refits therefore use a Poisson family with the spatial random effect, which is the boundary case of the same model (see `family_link`).",
   "**Conditional residuals.** Post-refit spatial tests use residuals conditional on the fitted spatial random effect (DHARMa cannot simulate conditionally for glmmTMB spatial structures). These remove autocorrelation partly by construction, so they confirm that the structure is adequate rather than providing an independent test.",
   "**Multiple testing.** Eleven hypotheses (18 focal tests) were evaluated without correction; individual p-values near 0.05 should be read with caution.",
-  "**Sampling design.** `Vyber_2025` (selected vs not selected fields) differs strongly in mean count and was not modelled; if field selection depended on expected occurrence, the habitat effects may be partly design-driven."
+  paste0("**Sampling design.** Fields selected for 2025 (`Vyber_2025`) had ", fmt(sel_row$effect), " times the density of the other fields. Selection was most likely based on expected occurrence, so the habitat effects may be partly design-driven. The main models do not include selection status; selection-adjusted sensitivity models are reported in the section above and in `selection_sensitivity.csv`.")
 )
 
 legends <- c(
@@ -333,7 +421,9 @@ legends <- c(
   paste0("**Figure 5.** Geographic gradients from the joint latitude + longitude models: (A, B) probability of detecting nutcrackers on a ", line_reference_km, "-km transect (cloglog model with offset), observed presence/absence jittered vertically; (C, D) density per km of transect."),
   "**Figure 6.** Nutcracker density per km of transect in each mapping field (KFME sixteenth cells; grey = transect length missing). Projection S-JTSK / Krovak East North (EPSG:5514); graticule in WGS84.",
   "**Figure 7.** DHARMa scaled residuals of the final (A) presence and (B) density models with latitude + longitude. Values near 0.5 are as expected; orange (near 0) = fewer and purple (near 1) = more detections than predicted.",
-  "**Figure S1.** Moran's I correlograms (10-km distance classes) of the residuals of every main model before (blue) and, where needed, after (orange) adding an exponential spatial covariance. Filled points: p < 0.05."
+  "**Figure S1.** Moran's I correlograms (10-km distance classes) of the residuals of every main model before (blue) and, where needed, after (orange) adding an exponential spatial covariance. Filled points: p < 0.05.",
+  "**Figure S2.** Habitat and geographic effects on nutcracker density without (blue circles) and with (orange triangles) selection status (`Vyber_2025`) as a covariate. Points: IRR from the final models; bars: 95% CIs; log scale; step sizes as in the overview table.",
+  "**Figure S3.** Exploratory PCA of the habitat variables (correlation matrix; fields in the total-count models). (A) Variance explained per component (bars) against the broken-stick expectation (points). (B) Correlation circle: black arrows are the active variables; the orange dashed arrow is observed density (square root), projected passively by its correlation with the scores (latitude and longitude, |r| < 0.2, are listed in `pca_loadings.csv`). (C) Field scores coloured by observed density per km of transect. (D) The same scores by selection status, with 95% normal-theory ellipses. NDOP records are log(1 + x)-, occurrence probability log- and disturbance proportions logit-transformed; calamity is omitted because it equals standing dead + salvage-logged area."
 )
 
 summary_md <- c(
@@ -350,6 +440,7 @@ summary_md <- c(
   "## Hypotheses",
   "",
   paragraphs,
+  selection_md,
   "## Caveats",
   "",
   paste("-", caveats),

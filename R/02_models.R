@@ -59,7 +59,18 @@ model_specs <- tribble(
   "H9_v1_no_mega",  "H9",        "count",    "prov_1",      "loudness_s",                "loudness_s",       "+",       "(1 | observer)",  "prov_1_no_megaphone", "sensitivity",
   "H9_v2_no_mega",  "H9",        "count",    "prov_2",      "loudness_s + time_of_day_2","loudness_s",       "+",       "(1 | observer)",  "prov_2_no_megaphone", "sensitivity",
   "H9_v1_no_re",    "H9",        "count",    "prov_1",      "loudness_s",                "loudness_s",       "+",       NA,                "prov_1",              "sensitivity",
-  "H9_v2_no_re",    "H9",        "count",    "prov_2",      "loudness_s + time_of_day_2","loudness_s",       "+",       NA,                "prov_2",              "sensitivity"
+  "H9_v2_no_re",    "H9",        "count",    "prov_2",      "loudness_s + time_of_day_2","loudness_s",       "+",       NA,                "prov_2",              "sensitivity",
+  # Sampling design: selected fields (Vyber_2025) were most likely chosen by
+  # expected occurrence. SEL measures the selection effect itself; the *_sel
+  # models check whether habitat and geographic effects survive adjustment.
+  "SEL",            "design",    "count",    "count_total", "selected_2025",             "selected_2025yes", "+",       NA,                "total",               "sensitivity",
+  "H1_sel",         "H1",        "count",    "count_total", "spruce_s + selected_2025",  "spruce_s",         "+",       NA,                "total",               "sensitivity",
+  "H2_sel",         "H2",        "count",    "count_total", "ndop_s + selected_2025",    "ndop_s",           "+",       NA,                "total",               "sensitivity",
+  "H3_sel",         "H3",        "count",    "count_total", "prob_s + selected_2025",    "prob_s",           "+",       NA,                "total",               "sensitivity",
+  "H4_sel",         "H4",        "count",    "count_total", "calamity_s + selected_2025","calamity_s",       "-",       NA,                "total",               "sensitivity",
+  "H5_sel",         "H5",        "count",    "count_total", "dry_s + selected_2025",     "dry_s",            "-",       NA,                "total",               "sensitivity",
+  "H6_sel",         "H6",        "count",    "count_total", "harvest_s + selected_2025", "harvest_s",        "-",       NA,                "total",               "sensitivity",
+  "H10_H11_dens_sel","H10/H11",  "count",    "count_total", "lat_s + lon_s + selected_2025", "lat_s,lon_s",  "+,-",     NA,                "total",               "sensitivity"
 )
 
 response_label <- c(

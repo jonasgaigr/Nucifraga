@@ -287,4 +287,49 @@ fig_s1 <- ggplot(correlograms, aes(distance_km, moran_I, colour = fit_type)) +
   theme(legend.position = "bottom")
 save_figure(fig_s1, "figS1_residual_correlograms", height_mm = 190)
 
+#----------------------------------------------------------#
+# Supplementary: effects with and without selection status -----
+#----------------------------------------------------------#
+selection_pairs <- tribble(
+  ~main,          ~adjusted,          ~term,        ~name,
+  "H1",           "H1_sel",           "spruce_s",   "H1 – Spruce forest area",
+  "H2",           "H2_sel",           "ndop_s",     "H2 – NDOP records",
+  "H3",           "H3_sel",           "prob_s",     "H3 – Modelled occurrence probability",
+  "H4",           "H4_sel",           "calamity_s", "H4 – Bark-beetle calamity",
+  "H5",           "H5_sel",           "dry_s",      "H5 – Standing dead spruce",
+  "H6",           "H6_sel",           "harvest_s",  "H6 – Salvage logging",
+  "H10_H11_dens", "H10_H11_dens_sel", "lat_s",      "H10 – Latitude",
+  "H10_H11_dens", "H10_H11_dens_sel", "lon_s",      "H11 – Longitude"
+)
+
+final_estimate <- function(id, term) {
+  s <- spatial %>% filter(model_id == id)
+  est <- if (s$use_spatial) s$estimates_after[[1]] else s$estimates_before[[1]]
+  est %>% filter(term == !!term) %>% select(-term)
+}
+
+selection_effects <- selection_pairs %>%
+  pivot_longer(c(main, adjusted), names_to = "fit", values_to = "model_id") %>%
+  mutate(est = map2(model_id, term, final_estimate)) %>%
+  unnest(est) %>%
+  left_join(predictor_info %>% select(term, step_label), by = "term") %>%
+  mutate(
+    label = paste0(name, "\n(", step_label, ")"),
+    label = forcats::fct_rev(forcats::fct_inorder(label)),
+    fit = factor(fit, levels = c("main", "adjusted"),
+                 labels = c("Main model", "Adjusted for selection status"))
+  )
+
+fig_s2 <- ggplot(selection_effects, aes(x = exp(estimate), y = label, colour = fit, shape = fit)) +
+  geom_vline(xintercept = 1, colour = "grey50", linewidth = 0.3) +
+  geom_pointrange(aes(xmin = exp(conf.low), xmax = exp(conf.high)),
+                  position = position_dodge(width = 0.55), size = 0.3, linewidth = 0.5) +
+  scale_x_log10(breaks = c(0.1, 0.2, 0.5, 1, 2)) +
+  scale_colour_manual(values = c(col_main, col_accent), name = NULL) +
+  scale_shape_manual(values = c(16, 17), name = NULL) +
+  labs(x = "Incidence rate ratio (95% CI, log scale)", y = NULL) +
+  theme(legend.position = "bottom", panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.25))
+save_figure(fig_s2, "figS2_selection_sensitivity", width_mm = width_single * 1.4, height_mm = 110)
+
 message("04: figures written to ", dir_figures)

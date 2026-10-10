@@ -90,21 +90,6 @@ correlogram <- function(sim, coords) {
   })
 }
 
-# Same zero-inflation and random effects as the non-spatial fit. The spatial
-# random effect also absorbs extra-Poisson variation, and in these data NB2
-# theta then runs to infinity, which leaves the NB2 fit unconverged or on the
-# boundary. A Poisson model with the spatial random effect (a spatial
-# Poisson-lognormal model) is then the same model, estimated properly.
-fit_spatial <- function(fit, data, response, predictors, random) {
-  sp_data <- add_spatial_coords(data)
-  sp_formula <- build_formula(response, predictors, random, spatial_term)
-  fit_sp <- update(fit, formula = sp_formula, data = sp_data)
-  if (family(fit_sp)$family == "nbinom2" && (!converged(fit_sp) || sigma(fit_sp) > 1e3)) {
-    fit_sp <- update(fit, formula = sp_formula, data = sp_data, family = poisson)
-  }
-  fit_sp
-}
-
 spatial_family_label <- function(fit) {
   link <- family(fit)$link
   switch(family(fit)$family,

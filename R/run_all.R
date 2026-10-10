@@ -3,14 +3,15 @@
 #----------------------------------------------------------#
 # Usage (from the project root, after `renv::restore()`):
 #   Rscript R/run_all.R
-# Runtime is roughly 15-25 minutes; the spatial refits in 03 dominate.
+# Runtime is roughly 25-40 minutes; the spatial refits in 03 dominate.
 
 scripts <- c(
   "01_import_clean.R",
   "02_models.R",
   "03_spatial.R",
   "04_figures.R",
-  "05_tables.R"
+  "05_tables.R",
+  "06_exploratory_pca.R"
 )
 
 for (script in scripts) {
