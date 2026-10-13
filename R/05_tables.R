@@ -433,8 +433,8 @@ subset_md <- c(
     "Date effects for spontaneous and playback-provoked detections separately (Figures 3b, 3c), device loudness",
     "without the 119-dB megaphone (Figure 4) and in classes that pool all devices of 100 dB or more, because",
     "loudness values above 100 dB are uncertain (Figure 4b), and the geographic density gradients in the fields",
-    "selected for 2025 only, without and with the fields where the calamity area is half or more of the remaining",
-    "spruce area (Figures 5b, 5c). Same model selection and spatial checks as the main models. The date models of",
+    "selected for 2025 only, first all of them (Figure 5b) and then without the fields where the calamity area is",
+    "half or more of the remaining spruce area (Figure 5c). Same model selection and spatial checks as the main models. The date models of",
     "visit 2 include time of day; the loudness models include the observer random effect."
   ),
   "",

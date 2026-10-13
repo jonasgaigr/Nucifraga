@@ -31,6 +31,14 @@ sample size,n in model H4_sel,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 sample size,n in model H5_sel,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 sample size,n in model H6_sel,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 sample size,n in model H10_H11_dens_sel,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H7_spont,362,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H7_prov,361,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H8_spont,354,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H8_prov,354,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v1_class,374,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H9_v2_class,365,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_H11_dens_selonly,226,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sample size,n in model H10_H11_dens_selonly_lowcal,202,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 effort: transect length class,above 6 km,55,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 effort: transect length class,below 4 km,22,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 effort: transect length class,missing,2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
