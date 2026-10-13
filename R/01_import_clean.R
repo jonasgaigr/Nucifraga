@@ -182,6 +182,15 @@ fields <- fields %>%
     prop_calamity = calamity_m2 / spruce_before_m2,
     prop_dry = dry_m2 / spruce_before_m2,
     prop_harvest = harvest_m2 / spruce_before_m2,
+    # Calamity relative to the remaining spruce (the data owner's definition
+    # of a heavily affected field: >= 0.5); used only to subset H10/H11
+    calamity_to_spruce = calamity_m2 / spruce_m2,
+
+    # Loudness above 100 dB comes from AliExpress callers without full
+    # specifications and is uncertain, so H9 is also fitted with classes that
+    # pool everything >= 100 dB
+    loudness_class = cut(loudness_db, breaks = c(-Inf, 80, 90, 100, Inf), right = FALSE,
+                         labels = c("<80", "80-90", "90-100", ">=100")),
 
     doy_1 = yday(date_1),
     doy_2 = yday(date_2),
@@ -225,7 +234,7 @@ data_checks <- bind_rows(
   flag(is.na(line_km), "Transect length missing ('NO DATA'); excluded from all models"),
   flag(line_km > 10, "Transect length > 10 km; confirmed as one visit's length (not both visits summed), kept"),
   flag(is.na(loudness_db), "Device loudness missing ('NO DATA'); excluded from H9"),
-  flag(loudness_db >= 110, "Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it"),
+  flag(loudness_db >= 110, "Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run and Figure 4 without it"),
   flag(str_detect(device, "musím ještě ověřit|nevím"), "Device identity marked uncertain by observer; verified by data owner, kept"),
   flag(kfme_cell %in% corrections$kfme_cell, "Visit 1 without playback; provoked count set to NA"),
   flag(!visit_2_done, "Visit 2 not done but Termin_2 coded 0; set to NA, field excluded from total-count models"),

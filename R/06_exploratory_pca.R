@@ -206,9 +206,9 @@ score_ylim <- range(score_points$PC2, ellipses$PC2)
 panel_density <- ggplot(score_points %>% arrange(density), aes(PC1, PC2)) +
   axis_lines +
   geom_point(aes(fill = density), shape = 21, colour = "grey40", stroke = 0.15, size = 1.2) +
-  scale_fill_viridis_c(name = paste0(str_to_sentence(count_unit), " per km of transect"),
-                       option = "viridis", direction = -1, end = 0.92, trans = "sqrt",
-                       breaks = c(0, 0.25, 0.5, 1, 1.5)) +
+  scale_fill_gradient(name = paste0(str_to_sentence(count_unit), " per km of transect"),
+                      low = pal_sequential[1], high = pal_sequential[2], trans = "sqrt",
+                      breaks = c(0, 0.25, 0.5, 1, 1.5)) +
   coord_equal(xlim = score_xlim, ylim = score_ylim) +
   labs(x = pc_label(1), y = pc_label(2)) +
   ordination_theme +

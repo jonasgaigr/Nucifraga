@@ -31,6 +31,10 @@ data_sets <- list(
 )
 data_sets$prov_1_no_megaphone <- data_sets$prov_1 %>% filter(loudness_db < 110)
 data_sets$prov_2_no_megaphone <- data_sets$prov_2 %>% filter(loudness_db < 110)
+# Field 6048dc has no provoked count in visit 1 (visit done without playback)
+data_sets$visit_1_prov <- data_sets$visit_1 %>% filter(!is.na(prov_1))
+data_sets$total_selected <- data_sets$total %>% filter(selected_2025 == "yes")
+data_sets$total_selected_low_calamity <- data_sets$total_selected %>% filter(calamity_to_spruce < 0.5)
 
 #----------------------------------------------------------#
 # Model specifications -----
@@ -70,13 +74,28 @@ model_specs <- tribble(
   "H4_sel",         "H4",        "count",    "count_total", "calamity_s + selected_2025","calamity_s",       "-",       NA,                "total",               "sensitivity",
   "H5_sel",         "H5",        "count",    "count_total", "dry_s + selected_2025",     "dry_s",            "-",       NA,                "total",               "sensitivity",
   "H6_sel",         "H6",        "count",    "count_total", "harvest_s + selected_2025", "harvest_s",        "-",       NA,                "total",               "sensitivity",
-  "H10_H11_dens_sel","H10/H11",  "count",    "count_total", "lat_s + lon_s + selected_2025", "lat_s,lon_s",  "+,-",     NA,                "total",               "sensitivity"
+  "H10_H11_dens_sel","H10/H11",  "count",    "count_total", "lat_s + lon_s + selected_2025", "lat_s,lon_s",  "+,-",     NA,                "total",               "sensitivity",
+  # Subsets for the poster figures: date effects for spontaneous and
+  # playback-provoked detections separately, loudness in classes (values
+  # >= 100 dB are uncertain), and geography in the selected fields only,
+  # without and with heavily calamity-affected fields (calamity / remaining
+  # spruce >= 0.5)
+  "H7_spont",       "H7",        "count",    "spont_1",     "doy_1_s",                   "doy_1_s",          "+/-",     NA,                "visit_1",             "subset",
+  "H7_prov",        "H7",        "count",    "prov_1",      "doy_1_s",                   "doy_1_s",          "+/-",     NA,                "visit_1_prov",        "subset",
+  "H8_spont",       "H8",        "count",    "spont_2",     "doy_2_s + time_of_day_2",   "doy_2_s",          "+/-",     NA,                "visit_2",             "subset",
+  "H8_prov",        "H8",        "count",    "prov_2",      "doy_2_s + time_of_day_2",   "doy_2_s",          "+/-",     NA,                "visit_2",             "subset",
+  "H9_v1_class",    "H9",        "count",    "prov_1",      "loudness_class",            "loudness_class80-90,loudness_class90-100,loudness_class>=100", "+,+,+", "(1 | observer)", "prov_1", "subset",
+  "H9_v2_class",    "H9",        "count",    "prov_2",      "loudness_class + time_of_day_2", "loudness_class80-90,loudness_class90-100,loudness_class>=100", "+,+,+", "(1 | observer)", "prov_2", "subset",
+  "H10_H11_dens_selonly", "H10/H11", "count", "count_total", "lat_s + lon_s",            "lat_s,lon_s",      "+,-",     NA,                "total_selected",      "subset",
+  "H10_H11_dens_selonly_lowcal", "H10/H11", "count", "count_total", "lat_s + lon_s",     "lat_s,lon_s",      "+,-",     NA,                "total_selected_low_calamity", "subset"
 )
 
 response_label <- c(
   count_total = "Total count (max of 2 visits)",
   count_1 = "Count, visit 1",
   count_2 = "Count, visit 2",
+  spont_1 = "Spontaneous count, visit 1",
+  spont_2 = "Spontaneous count, visit 2",
   prov_1 = "Provoked count, visit 1",
   prov_2 = "Provoked count, visit 2",
   presence = "Presence (detected in either visit)"

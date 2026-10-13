@@ -27,7 +27,8 @@ R/
 ├── 06_exploratory_pca.R # exploratory PCA of the habitat variables
 └── run_all.R           # runs 01–06 and writes session info
 Outputs/
-├── Figures/            # fig1–fig7, figS1–figS3
+├── Figures/            # fig1–fig7, figS1–figS3; poster subsets fig3b/3c,
+│                       # fig4b, fig5b/5c; Czech versions *_cs
 ├── Tables/             # model_results.{csv,xlsx}, model_diagnostics.csv,
 │                       # descriptives.csv, data_checks.csv,
 │                       # selection_sensitivity.csv, pca_*.csv
@@ -170,6 +171,8 @@ latitude–longitude correlation and VIF. For H9, the observer is used as a
 random effect. Device names are free text, and almost every observer used a
 single device, so a device effect cannot be separated from an observer effect.
 H9 sensitivity runs exclude the 119-dB megaphone and drop the random effect.
+Figure 4 shows the fit without the megaphone, because loudness values above
+100 dB come from devices without full specifications and are uncertain.
 
 ## Sampling design (`Vyber_2025`)
 
@@ -204,6 +207,21 @@ model of the total count on PC1 and PC2, with the same offset and a spatial
 refit, shows how much density follows the joint habitat gradient. Outputs:
 `pca_variance.csv`, `pca_loadings.csv`, `pca_density_model.csv` and Figure S3.
 This analysis is descriptive; the hypothesis tests are in 02–03.
+
+## Subsets for the poster figures
+
+`02_models.R` fits a few subset models (`role = "subset"`) that are only used
+for the poster figures and are reported in their own section of
+`results_summary.md`. They go through the same model selection and spatial
+checks as the main models.
+
+| Model | Data | Figure |
+|---|---|---|
+| `H7_spont`, `H8_spont` | spontaneous detections (`Spontanne_1`, `Spontanne_2`) vs visit date | 3b |
+| `H7_prov`, `H8_prov` | playback-provoked detections (`Provokovano_1`, `Provokovano_2`) vs visit date | 3c |
+| `H9_v1_class`, `H9_v2_class` | provoked detections by loudness class (< 80, 80–90, 90–100, ≥ 100 dB) | 4b |
+| `H10_H11_dens_selonly` | density vs latitude + longitude, fields with `Vyber_2025` = ANO | 5b |
+| `H10_H11_dens_selonly_lowcal` | as above, and `Plocha kurovcove kalamity celkem (m2)` / `SMRK_m2` < 0.5 | 5c |
 
 ## Spatial autocorrelation
 
@@ -242,7 +260,9 @@ can be judged.
 - `Outputs/results_summary.md`: one paragraph per hypothesis, caveats and
   figure legends.
 - `Outputs/Figures/`: figures as PDF, 600-dpi PNG and TIFF, mostly at 175 mm
-  (double column).
+  (double column). Spruce green with nutcracker brown as the contrast colour,
+  to match the poster. Figures 1–5 and their subset versions are also written
+  with Czech labels (`*_cs`).
 
 ## License
 

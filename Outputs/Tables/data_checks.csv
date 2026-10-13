@@ -74,10 +74,10 @@ kfme_cell,observer,issue
 7151aa,Aleš Vondrka,"Device identity marked uncertain by observer; verified by data owner, kept"
 7151ad,Aleš Vondrka,"Device identity marked uncertain by observer; verified by data owner, kept"
 7249ab,Aleš Vondrka,"Device identity marked uncertain by observer; verified by data owner, kept"
-6150db,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
-6150dc,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
-6250aa,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
-6250ab,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run without it
+6150db,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run and Figure 4 without it
+6150dc,"Vítězslav Palan, Zuzana Strnadová",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run and Figure 4 without it
+6250aa,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run and Figure 4 without it
+6250ab,"Vítězslav Palan, Martin Strnad",Device loudness >= 110 dB (megaphone-type caller); H9 sensitivity run and Figure 4 without it
 5258cb,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9
 5259ac,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9
 5259cb,Karolina Mikslová,Device loudness missing ('NO DATA'); excluded from H9

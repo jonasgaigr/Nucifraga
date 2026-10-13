@@ -9,6 +9,9 @@
 # effects at zero), with 95% CIs built on the link scale so they cannot cross
 # zero. Count models are shown as density per 1 km of transect; presence
 # models as detection probability on a 5-km transect.
+#
+# Figures 1-5 (and their subset versions for the poster) are written in
+# English and in Czech (file names ending in _cs).
 
 source(here::here("R", "00_setup.R"))
 
@@ -16,13 +19,63 @@ fields <- readRDS(path_clean_rds)
 spatial <- readRDS(path_spatial_rds)
 
 final <- spatial %>%
-  filter(role == "main") %>%
   select(model_id, response, fit_final, model_data, sim_final, use_spatial)
 
 get_model <- function(id) final %>% filter(model_id == id)
 
+#----------------------------------------------------------#
+# Labels in English and Czech -----
+#----------------------------------------------------------#
+axis_labels <- tribble(
+  ~term,        ~en,                                                                  ~cs,
+  "spruce_s",   "Spruce stand area (km²)",                                            "Plocha smrkového porostu (km²)",
+  "ndop_s",     "Number of records in NDOP (2014–2024)",                              "Počet záznamů v NDOP (2014–2024)",
+  "prob_s",     "Probability of detection within one hour (2014–2017)",               "Pravděpodobnost zastižení během jedné hodiny (2014–2017)",
+  "calamity_s", "Proportion of disturbed area to total spruce stand area",            "Podíl kalamitní plochy na celkovou plochu smrkového porostu",
+  "dry_s",      "Proportion of unsalvaged disturbed area to total spruce stand area", "Podíl nevytěžené kalamitní plochy na celkovou plochu smrkového porostu",
+  "harvest_s",  "Proportion of salvage-logged disturbed area to total spruce stand area", "Podíl vytěžené kalamitní plochy na celkovou plochu smrkového porostu",
+  "doy_1_s",    "Date of 1st survey visit",                                           "Datum 1. kontroly",
+  "doy_2_s",    "Date of 2nd survey visit",                                           "Datum 2. kontroly",
+  "loudness_s", "Loudness of the playback device (dB at 1 m)",                        "Hlasitost zařízení určeného k provokaci (dB v 1 m)",
+  "lat_s",      "Latitude (°N)",                                                      "Zeměpisná šířka (° s. š.)",
+  "lon_s",      "Longitude (°E)",                                                     "Zeměpisná délka (° v. d.)"
+)
+
+text_labels <- list(
+  en = list(
+    density = "Number of territories per 1 km",
+    presence = paste0("Detection probability (", line_reference_km, "-km transect)"),
+    time_of_day = "Time of day, 2nd survey visit",
+    time_of_day_levels = c(morning = "Morning", `afternoon/evening` = "Afternoon/evening",
+                           `morning + evening` = "Morning + evening"),
+    loudness_levels = c(`<80` = "< 80", `80-90` = "80–90", `90-100` = "90–100", `>=100` = "≥ 100"),
+    visit_1 = "1st survey visit",
+    visit_2 = "2nd survey visit",
+    spontaneous = "Nutcrackers detected without playback",
+    provoked = "Nutcrackers detected with playback",
+    selected = "Fields selected for 2025 (Vyber_2025)",
+    selected_low_calamity = "Fields selected for 2025, calamity area < 50% of spruce area",
+    date = \(day, month) paste(day, month.abb[month])
+  ),
+  cs = list(
+    density = "Počet teritorií / 1 km",
+    presence = paste0("Pravděpodobnost zjištění (transekt ", line_reference_km, " km)"),
+    time_of_day = "Denní doba, 2. kontrola",
+    time_of_day_levels = c(morning = "Ráno", `afternoon/evening` = "Odpoledne/večer",
+                           `morning + evening` = "Ráno + večer"),
+    loudness_levels = c(`<80` = "< 80", `80-90` = "80–90", `90-100` = "90–100", `>=100` = "≥ 100"),
+    visit_1 = "1. kontrola",
+    visit_2 = "2. kontrola",
+    spontaneous = "Ořešníci zjištění bez provokace",
+    provoked = "Ořešníci zjištění provokací",
+    selected = "Vylosovaná pole (Vyber_2025)",
+    selected_low_calamity = "Vylosovaná pole, kalamita < 50 % plochy smrku",
+    date = \(day, month) paste0(day, ". ", month, ".")
+  )
+)
+
+# English labels for the maps and supplementary figures
 density_label <- paste0(str_to_sentence(count_unit), " per km of transect")
-presence_label <- paste0("Detection probability (", line_reference_km, "-km transect)")
 
 #----------------------------------------------------------#
 # Prediction helper -----
@@ -71,13 +124,14 @@ observed_points <- function(id, term) {
 }
 
 #----------------------------------------------------------#
-# Panel builder -----
+# Panel builders -----
 #----------------------------------------------------------#
 sqrt_breaks <- c(0, 0.1, 0.25, 0.5, 1, 1.5, 2)
-# Built from month.abb rather than format(), which follows the system locale
-date_labels <- \(x) {
+# Built from the label table rather than format(), which follows the system
+# locale
+date_labels <- \(lang) \(x) {
   d <- as_date(x - 1, origin = "2025-01-01")
-  if_else(is.na(d), NA_character_, paste(mday(d), month.abb[month(d)]))
+  if_else(is.na(d), NA_character_, text_labels[[lang]]$date(mday(d), month(d)))
 }
 date_breaks <- \(lims) {
   days <- seq(as_date("2025-01-01"), as_date("2025-12-31"), by = "day")
@@ -87,11 +141,14 @@ date_breaks <- \(lims) {
   doy[doy >= lims[1] & doy <= lims[2]]
 }
 
-effect_panel <- function(id, term, x_jitter = 0) {
+# The disturbance labels are long; wrapped to fit one third of a page width
+axis_label <- function(term, lang) str_wrap(axis_labels[[lang]][axis_labels$term == term], 42)
+
+effect_panel <- function(id, term, lang = "en", x_jitter = 0) {
   m <- get_model(id)
   pred <- predict_effect(id, term)
   obs <- observed_points(id, term)
-  info <- predictor_info %>% filter(term == !!term)
+  lab <- text_labels[[lang]]
   is_presence <- m$response == "presence"
 
   p <- ggplot(pred, aes(x = x)) +
@@ -102,7 +159,7 @@ effect_panel <- function(id, term, x_jitter = 0) {
     ) +
     geom_ribbon(aes(ymin = low, ymax = high), fill = col_main, alpha = 0.25) +
     geom_line(aes(y = fit), colour = col_main, linewidth = 0.7) +
-    labs(x = info$axis_label, y = if (is_presence) presence_label else density_label)
+    labs(x = axis_label(term, lang), y = if (is_presence) lab$presence else lab$density)
 
   p <- if (is_presence) {
     p + scale_y_continuous(limits = c(-0.05, 1.05), breaks = seq(0, 1, 0.25))
@@ -111,25 +168,30 @@ effect_panel <- function(id, term, x_jitter = 0) {
     # would compress the fitted line against the floor.
     p + scale_y_continuous(trans = "sqrt", breaks = sqrt_breaks)
   }
-  if (str_detect(term, "^doy")) p <- p + scale_x_continuous(breaks = date_breaks, labels = date_labels)
+  if (str_detect(term, "^doy")) p <- p + scale_x_continuous(breaks = date_breaks, labels = date_labels(lang))
   p
 }
 
-time_of_day_panel <- function(id) {
+# Predicted density per level of a factor, other predictors at their mean
+# and time of day at morning
+factor_panel <- function(id, variable, level_labels, x_label, lang = "en") {
   m <- get_model(id)
   fit <- m$fit_final[[1]]
   dat <- m$model_data[[1]]
-  levs <- levels(droplevels(dat$time_of_day_2))
+  levs <- levels(droplevels(dat[[variable]]))
   new_data <- add_spatial_coords(dat)[rep(1, length(levs)), ]
   for (t in intersect(predictor_info$term, names(dat))) {
     new_data[[t]] <- mean(dat[[t]], na.rm = TRUE)
   }
-  new_data$time_of_day_2 <- factor(levs, levels = levels(dat$time_of_day_2))
+  if (variable != "time_of_day_2" && "time_of_day_2" %in% names(new_data)) {
+    new_data$time_of_day_2 <- factor("morning", levels = levels(dat$time_of_day_2))
+  }
+  new_data[[variable]] <- factor(levs, levels = levels(dat[[variable]]))
   new_data$line_km <- 1
   p <- predict(fit, newdata = new_data, re.form = NA, se.fit = TRUE, type = "link")
   est <- tibble(
-    level = factor(levs, levels = levs),
-    n = as.integer(table(droplevels(dat$time_of_day_2))[levs]),
+    level = factor(level_labels[levs], levels = level_labels[levs]),
+    n = as.integer(table(droplevels(dat[[variable]]))[levs]),
     fit = exp(p$fit),
     low = exp(p$fit - qnorm(0.975) * p$se.fit),
     high = exp(p$fit + qnorm(0.975) * p$se.fit)
@@ -139,46 +201,106 @@ time_of_day_panel <- function(id) {
     geom_text(aes(y = high, label = paste0("n = ", n)), vjust = -0.6, size = 2.3, colour = "grey30") +
     scale_x_discrete(labels = \(x) str_replace_all(x, c("/" = "/\n", " \\+ " = " +\n"))) +
     scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
-    labs(x = "Time of day, visit 2", y = density_label)
+    labs(x = x_label, y = text_labels[[lang]]$density)
 }
 
-tag_panels <- function(p) p + plot_annotation(tag_levels = "A")
+time_of_day_panel <- function(id, lang = "en") {
+  lab <- text_labels[[lang]]
+  factor_panel(id, "time_of_day_2", lab$time_of_day_levels, lab$time_of_day, lang)
+}
+
+loudness_class_panel <- function(id, lang = "en") {
+  factor_panel(id, "loudness_class", text_labels[[lang]]$loudness_levels,
+               axis_labels[[lang]][axis_labels$term == "loudness_s"], lang)
+}
+
+tag_panels <- function(p, title = NULL) {
+  p + plot_annotation(tag_levels = "A", title = title,
+                      theme = theme(plot.title = element_text(size = 9, face = "bold")))
+}
 
 #----------------------------------------------------------#
-# Figures 1-5: hypothesis effects -----
+# Figures 1-5: hypothesis effects, English and Czech -----
 #----------------------------------------------------------#
-fig_1 <- tag_panels(
-  effect_panel("H1", "spruce_s") +
-    effect_panel("H2", "ndop_s", x_jitter = 0.15) +
-    effect_panel("H3", "prob_s")
-)
-save_figure(fig_1, "fig1_h1_h3_habitat", height_mm = 65)
+file_suffix <- c(en = "", cs = "_cs")
 
-fig_2 <- tag_panels(
-  effect_panel("H4", "calamity_s") +
-    effect_panel("H5", "dry_s") +
-    effect_panel("H6", "harvest_s")
-)
-save_figure(fig_2, "fig2_h4_h6_disturbance", height_mm = 65)
+for (lang in c("en", "cs")) {
+  lab <- text_labels[[lang]]
+  save_lang <- \(plot, name, ...) save_figure(plot, paste0(name, file_suffix[[lang]]), ...)
+  visit_1 <- labs(subtitle = lab$visit_1)
+  visit_2 <- labs(subtitle = lab$visit_2)
 
-fig_3 <- tag_panels(
-  effect_panel("H7", "doy_1_s", x_jitter = 0.3) +
-    effect_panel("H8", "doy_2_s", x_jitter = 0.3) +
-    time_of_day_panel("H8")
-)
-save_figure(fig_3, "fig3_h7_h8_survey_date", height_mm = 70)
+  fig_1 <- tag_panels(
+    effect_panel("H1", "spruce_s", lang) +
+      effect_panel("H2", "ndop_s", lang, x_jitter = 0.15) +
+      effect_panel("H3", "prob_s", lang)
+  )
+  save_lang(fig_1, "fig1_h1_h3_habitat", height_mm = 65)
 
-fig_4 <- tag_panels(
-  (effect_panel("H9_v1", "loudness_s", x_jitter = 0.3) + labs(subtitle = "Visit 1, provoked")) +
-    (effect_panel("H9_v2", "loudness_s", x_jitter = 0.3) + labs(subtitle = "Visit 2, provoked"))
-)
-save_figure(fig_4, "fig4_h9_device_loudness", width_mm = width_double, height_mm = 70)
+  fig_2 <- tag_panels(
+    effect_panel("H4", "calamity_s", lang) +
+      effect_panel("H5", "dry_s", lang) +
+      effect_panel("H6", "harvest_s", lang)
+  )
+  save_lang(fig_2, "fig2_h4_h6_disturbance", height_mm = 70)
 
-fig_5 <- tag_panels(
-  (effect_panel("H10_H11_pres", "lat_s") + effect_panel("H10_H11_pres", "lon_s")) /
-    (effect_panel("H10_H11_dens", "lat_s") + effect_panel("H10_H11_dens", "lon_s"))
-)
-save_figure(fig_5, "fig5_h10_h11_geography", height_mm = 120)
+  fig_3 <- tag_panels(
+    effect_panel("H7", "doy_1_s", lang, x_jitter = 0.3) +
+      effect_panel("H8", "doy_2_s", lang, x_jitter = 0.3) +
+      time_of_day_panel("H8", lang)
+  )
+  save_lang(fig_3, "fig3_h7_h8_survey_date", height_mm = 70)
+
+  # Spontaneous and playback-provoked detections separately
+  fig_3b <- tag_panels(
+    effect_panel("H7_spont", "doy_1_s", lang, x_jitter = 0.3) +
+      effect_panel("H8_spont", "doy_2_s", lang, x_jitter = 0.3),
+    title = lab$spontaneous
+  )
+  save_lang(fig_3b, "fig3b_h7_h8_survey_date_spontaneous", width_mm = width_double * 2 / 3, height_mm = 75)
+
+  fig_3c <- tag_panels(
+    effect_panel("H7_prov", "doy_1_s", lang, x_jitter = 0.3) +
+      effect_panel("H8_prov", "doy_2_s", lang, x_jitter = 0.3),
+    title = lab$provoked
+  )
+  save_lang(fig_3c, "fig3c_h7_h8_survey_date_provoked", width_mm = width_double * 2 / 3, height_mm = 75)
+
+  # Without the 119-dB megaphone: values above 100 dB are uncertain, and four
+  # fields at 119 dB stretched the axis and the fitted line
+  fig_4 <- tag_panels(
+    (effect_panel("H9_v1_no_mega", "loudness_s", lang, x_jitter = 0.3) + visit_1) +
+      (effect_panel("H9_v2_no_mega", "loudness_s", lang, x_jitter = 0.3) + visit_2)
+  )
+  save_lang(fig_4, "fig4_h9_device_loudness", height_mm = 70)
+
+  # Loudness classes, with everything >= 100 dB pooled
+  fig_4b <- tag_panels(
+    (loudness_class_panel("H9_v1_class", lang) + visit_1) +
+      (loudness_class_panel("H9_v2_class", lang) + visit_2)
+  )
+  save_lang(fig_4b, "fig4b_h9_device_loudness_classes", height_mm = 70)
+
+  fig_5 <- tag_panels(
+    (effect_panel("H10_H11_pres", "lat_s", lang) + effect_panel("H10_H11_pres", "lon_s", lang)) /
+      (effect_panel("H10_H11_dens", "lat_s", lang) + effect_panel("H10_H11_dens", "lon_s", lang))
+  )
+  save_lang(fig_5, "fig5_h10_h11_geography", height_mm = 120)
+
+  fig_5b <- tag_panels(
+    effect_panel("H10_H11_dens_selonly", "lat_s", lang) +
+      effect_panel("H10_H11_dens_selonly", "lon_s", lang),
+    title = lab$selected
+  )
+  save_lang(fig_5b, "fig5b_h10_h11_geography_selected", width_mm = width_double * 2 / 3, height_mm = 70)
+
+  fig_5c <- tag_panels(
+    effect_panel("H10_H11_dens_selonly_lowcal", "lat_s", lang) +
+      effect_panel("H10_H11_dens_selonly_lowcal", "lon_s", lang),
+    title = lab$selected_low_calamity
+  )
+  save_lang(fig_5c, "fig5c_h10_h11_geography_selected_low_calamity", width_mm = width_double * 2 / 3, height_mm = 70)
+}
 
 #----------------------------------------------------------#
 # Maps -----
@@ -225,8 +347,8 @@ map_base <- function() {
 fig_6 <- ggplot() +
   map_base() +
   geom_sf(data = field_cells, aes(fill = density), colour = "grey30", linewidth = 0.05) +
-  scale_fill_viridis_c(
-    name = density_label, option = "viridis", direction = -1,
+  scale_fill_gradient(
+    name = density_label, low = pal_sequential[1], high = pal_sequential[2],
     trans = "sqrt", breaks = sqrt_breaks, na.value = "grey70"
   ) +
   map_coord
@@ -244,8 +366,9 @@ residual_map <- function(id, title) {
   ggplot() +
     map_base() +
     geom_sf(data = residual_cells(id), aes(fill = residual), colour = "grey30", linewidth = 0.05) +
+    # Brown = fewer, green = more detections than predicted
     scale_fill_distiller(
-      name = "Scaled residual (DHARMa)", palette = "PuOr", direction = 1,
+      name = "Scaled residual (DHARMa)", palette = "BrBG", direction = 1,
       limits = c(0, 1), breaks = c(0, 0.5, 1)
     ) +
     map_coord +

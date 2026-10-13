@@ -133,12 +133,15 @@ fit_spatial <- function(fit, data, response, predictors, random = NA) {
 width_single <- 85
 width_double <- 175
 
-# Okabe-Ito: designed to stay distinguishable under the common colour-vision
-# deficiencies.
-col_main <- "#0072B2"
-col_accent <- "#D55E00"
-col_points <- "grey35"
-pal_categorical <- c("#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00")
+# Spruce greens for the data, to match the poster (black, brown and white, the
+# colours of the nutcracker, with green accents). The contrast colour is a light
+# nutcracker brown: it differs from the dark green in lightness as well as hue,
+# so the pair stays distinguishable under red-green colour-vision deficiency.
+col_main <- "#1F5130"
+col_accent <- "#A9713C"
+col_points <- "#2E3B30"
+# Light to dark spruce for sequential fills (density maps, PCA scores)
+pal_sequential <- c("#EDF3E6", "#0E301C")
 
 theme_nuc <- function(base_size = 8) {
   theme_minimal(base_size = base_size) +

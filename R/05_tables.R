@@ -17,11 +17,16 @@ fmt_p <- function(p) if_else(p < 0.001, "< 0.001", paste("=", formatC(p, format 
 term_labels <- predictor_info %>%
   select(term, term_label = axis_label, step_label, phrase) %>%
   bind_rows(tibble(
-    term = c("time_of_day_2afternoon/evening", "time_of_day_2morning + evening", "selected_2025yes"),
+    term = c("time_of_day_2afternoon/evening", "time_of_day_2morning + evening", "selected_2025yes",
+             "loudness_class80-90", "loudness_class90-100", "loudness_class>=100"),
     term_label = c("Time of day: afternoon/evening (vs morning)", "Time of day: morning + evening (vs morning)",
-                   "Selected for 2025 (vs not selected)"),
-    step_label = c("vs morning", "vs morning", "selected vs not selected"),
-    phrase = c("afternoon/evening visits", "visits spanning morning and evening", "selection for 2025")
+                   "Selected for 2025 (vs not selected)",
+                   "Device loudness 80–90 dB (vs < 80 dB)", "Device loudness 90–100 dB (vs < 80 dB)",
+                   "Device loudness ≥ 100 dB (vs < 80 dB)"),
+    step_label = c("vs morning", "vs morning", "selected vs not selected",
+                   "vs < 80 dB", "vs < 80 dB", "vs < 80 dB"),
+    phrase = c("afternoon/evening visits", "visits spanning morning and evening", "selection for 2025",
+               "devices of 80–90 dB", "devices of 90–100 dB", "devices of 100 dB or more")
   ))
 
 capitalise <- function(x) paste0(toupper(str_sub(x, 1, 1)), str_sub(x, 2))
@@ -394,6 +399,49 @@ selection_md <- c(
   ""
 )
 
+#----------------------------------------------------------#
+# Subset models behind the poster figures -----
+#----------------------------------------------------------#
+subset_rows <- tribble(
+  ~model_id,                     ~Subset,
+  "H7_spont",                    "Visit 1, spontaneous detections",
+  "H7_prov",                     "Visit 1, provoked detections",
+  "H8_spont",                    "Visit 2, spontaneous detections",
+  "H8_prov",                     "Visit 2, provoked detections",
+  "H9_v1_no_mega",               "Visit 1, provoked, without the 119-dB megaphone",
+  "H9_v2_no_mega",               "Visit 2, provoked, without the 119-dB megaphone",
+  "H9_v1_class",                 "Visit 1, provoked, loudness classes",
+  "H9_v2_class",                 "Visit 2, provoked, loudness classes",
+  "H10_H11_dens_selonly",        "Selected fields (Vyber_2025 = ANO)",
+  "H10_H11_dens_selonly_lowcal", "Selected fields, calamity / remaining spruce < 0.5"
+)
+
+subset_table <- subset_rows %>%
+  inner_join(final_all %>% filter(!is.na(expected_sign)), by = "model_id") %>%
+  transmute(
+    Subset, n, Term = term_label, Step = step,
+    `IRR (95% CI)` = paste0(fmt(effect), " (", fmt(effect_ci_low), "–", fmt(effect_ci_high), ")"),
+    p = str_remove(fmt_p(p_value), "^= "),
+    `Spatial model` = if_else(str_detect(family_link, "spatial"), "yes", "no"),
+    Verdict = capitalise(classify_support(expected_sign, estimate_log, ci_low_log, ci_high_log))
+  )
+
+subset_md <- c(
+  "## Subsets for the poster figures",
+  "",
+  paste(
+    "Date effects for spontaneous and playback-provoked detections separately (Figures 3b, 3c), device loudness",
+    "without the 119-dB megaphone (Figure 4) and in classes that pool all devices of 100 dB or more, because",
+    "loudness values above 100 dB are uncertain (Figure 4b), and the geographic density gradients in the fields",
+    "selected for 2025 only, without and with the fields where the calamity area is half or more of the remaining",
+    "spruce area (Figures 5b, 5c). Same model selection and spatial checks as the main models. The date models of",
+    "visit 2 include time of day; the loudness models include the observer random effect."
+  ),
+  "",
+  md_table(subset_table),
+  ""
+)
+
 d_line <- descriptives %>% filter(variable == "transect length (km)")
 line_counts <- fields %>% count(line_class) %>% tibble::deframe()
 
@@ -414,16 +462,20 @@ caveats <- c(
 )
 
 legends <- c(
-  "**Figure 1.** Effects of (A) spruce forest area, (B) number of NDOP records and (C) modelled occurrence probability on nutcracker density. Points: observed counts per km of transect (grey, semi-transparent; B jittered horizontally). Lines and ribbons: predictions and 95% CIs from the final models with a log(transect length) offset, shown per 1 km of transect. Square-root y axis.",
+  "**Figure 1.** Effects of (A) spruce forest area, (B) number of NDOP records and (C) modelled occurrence probability on nutcracker density. Points: observed counts per km of transect (dark green, semi-transparent; B jittered horizontally). Lines and ribbons: predictions and 95% CIs from the final models with a log(transect length) offset, shown per 1 km of transect. Square-root y axis.",
   "**Figure 2.** Effects of the proportion of (A) bark-beetle calamity, (B) standing dead spruce and (C) salvage-logged area on nutcracker density. Layout as in Figure 1.",
   "**Figure 3.** (A) Density detected in visit 1 vs date; (B) density detected in visit 2 vs date (time of day fixed at morning); (C) density in visit 2 by time of day at the mean date (n = number of fields).",
-  "**Figure 4.** Density of provoked detections vs playback device loudness in (A) visit 1 and (B) visit 2. Predictions at population level (observer random effect = 0); visit 2 at morning.",
+  "**Figures 3b and 3c.** As Figure 3 A–B, for nutcrackers detected (3b) without playback (`Spontanne_1`, `Spontanne_2`) and (3c) with playback (`Provokovano_1`, `Provokovano_2`).",
+  "**Figure 4.** Density of provoked detections vs playback device loudness in (A) visit 1 and (B) visit 2, without the 119-dB megaphone (4 fields; sensitivity models H9_v1_no_mega and H9_v2_no_mega). Predictions at population level (observer random effect = 0); visit 2 at morning.",
+  "**Figure 4b.** Density of provoked detections by device loudness class (dB at 1 m; all devices of 100 dB or more pooled, because those values are uncertain) in (A) visit 1 and (B) visit 2. Points and bars: predictions and 95% CIs at population level; n = number of fields.",
   paste0("**Figure 5.** Geographic gradients from the joint latitude + longitude models: (A, B) probability of detecting nutcrackers on a ", line_reference_km, "-km transect (cloglog model with offset), observed presence/absence jittered vertically; (C, D) density per km of transect."),
+  "**Figures 5b and 5c.** As Figure 5 C–D, in (5b) the fields selected for 2025 (`Vyber_2025` = ANO) and (5c) the selected fields in which the calamity area is less than half of the remaining spruce area (`Plocha kurovcove kalamity celkem (m2)` / `SMRK_m2` < 0.5).",
   "**Figure 6.** Nutcracker density per km of transect in each mapping field (KFME sixteenth cells; grey = transect length missing). Projection S-JTSK / Krovak East North (EPSG:5514); graticule in WGS84.",
-  "**Figure 7.** DHARMa scaled residuals of the final (A) presence and (B) density models with latitude + longitude. Values near 0.5 are as expected; orange (near 0) = fewer and purple (near 1) = more detections than predicted.",
-  "**Figure S1.** Moran's I correlograms (10-km distance classes) of the residuals of every main model before (blue) and, where needed, after (orange) adding an exponential spatial covariance. Filled points: p < 0.05.",
-  "**Figure S2.** Habitat and geographic effects on nutcracker density without (blue circles) and with (orange triangles) selection status (`Vyber_2025`) as a covariate. Points: IRR from the final models; bars: 95% CIs; log scale; step sizes as in the overview table.",
-  "**Figure S3.** Exploratory PCA of the habitat variables (correlation matrix; fields in the total-count models). (A) Variance explained per component (bars) against the broken-stick expectation (points). (B) Correlation circle: black arrows are the active variables; the orange dashed arrow is observed density (square root), projected passively by its correlation with the scores (latitude and longitude, |r| < 0.2, are listed in `pca_loadings.csv`). (C) Field scores coloured by observed density per km of transect. (D) The same scores by selection status, with 95% normal-theory ellipses. NDOP records are log(1 + x)-, occurrence probability log- and disturbance proportions logit-transformed; calamity is omitted because it equals standing dead + salvage-logged area."
+  "**Figure 7.** DHARMa scaled residuals of the final (A) presence and (B) density models with latitude + longitude. Values near 0.5 are as expected; brown (near 0) = fewer and green (near 1) = more detections than predicted.",
+  "**Figure S1.** Moran's I correlograms (10-km distance classes) of the residuals of every main model before (green) and, where needed, after (brown) adding an exponential spatial covariance. Filled points: p < 0.05.",
+  "**Figure S2.** Habitat and geographic effects on nutcracker density without (green circles) and with (brown triangles) selection status (`Vyber_2025`) as a covariate. Points: IRR from the final models; bars: 95% CIs; log scale; step sizes as in the overview table.",
+  "**Figure S3.** Exploratory PCA of the habitat variables (correlation matrix; fields in the total-count models). (A) Variance explained per component (bars) against the broken-stick expectation (points). (B) Correlation circle: black arrows are the active variables; the brown dashed arrow is observed density (square root), projected passively by its correlation with the scores (latitude and longitude, |r| < 0.2, are listed in `pca_loadings.csv`). (C) Field scores coloured by observed density per km of transect. (D) The same scores by selection status, with 95% normal-theory ellipses. NDOP records are log(1 + x)-, occurrence probability log- and disturbance proportions logit-transformed; calamity is omitted because it equals standing dead + salvage-logged area.",
+  "Figures 1–5, 3b, 3c, 4b, 5b and 5c are also written with Czech labels (file names ending in `_cs`)."
 )
 
 summary_md <- c(
@@ -441,6 +493,7 @@ summary_md <- c(
   "",
   paragraphs,
   selection_md,
+  subset_md,
   "## Caveats",
   "",
   paste("-", caveats),
