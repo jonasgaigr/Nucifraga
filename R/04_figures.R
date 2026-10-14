@@ -142,7 +142,7 @@ date_breaks <- \(lims) {
 }
 
 # The disturbance labels are long; wrapped to fit one third of a page width
-axis_label <- function(term, lang) str_wrap(axis_labels[[lang]][axis_labels$term == term], 42)
+axis_label <- function(term, lang) str_wrap(axis_labels[[lang]][axis_labels$term == term], 34)
 
 effect_panel <- function(id, term, lang = "en", x_jitter = 0) {
   m <- get_model(id)
@@ -235,7 +235,7 @@ for (lang in c("en", "cs")) {
       effect_panel("H2", "ndop_s", lang, x_jitter = 0.15) +
       effect_panel("H3", "prob_s", lang)
   )
-  save_lang(fig_1, "fig1_h1_h3_habitat", height_mm = 65)
+  save_lang(fig_1, "fig1_h1_h3_habitat", height_mm = 70)
 
   fig_2 <- tag_panels(
     effect_panel("H4", "calamity_s", lang) +
